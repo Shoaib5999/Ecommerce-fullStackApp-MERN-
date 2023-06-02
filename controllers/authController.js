@@ -1,8 +1,11 @@
 const { hashPassword, comparePassword } = require("../helpers/authHelper.js");
-const userModel = require("../models/userModels.js");
+const User = require("../models/userModels.js").User;
+// console.log(userModel);
 const JWT = require("jsonwebtoken");
 
 exports.registerController = async (req, res) => {
+  console.log(req.body);
+
   try {
     const { name, email, password, phone, address } = req.body;
 
@@ -11,19 +14,19 @@ exports.registerController = async (req, res) => {
       return res.send({ error: "Name is Required" });
     }
     if (!email) {
-      return res.send({ error: "Email is Required" });
+      return res.send({ message: "Email is Required" });
     }
     if (!password) {
-      return res.send({ error: "Password is Required" });
+      return res.send({ message: "Password is Required" });
     }
     if (!phone) {
-      return res.send({ error: "Phone is Required" });
+      return res.send({ message: "Phone is Required" });
     }
     if (!address) {
-      return res.send({ error: "Address is Required" });
+      return res.send({ message: "Address is Required" });
     }
     //check user
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await User.findOne({ email });
     //existing user
     if (existingUser) {
       console.log("existing user found");
@@ -36,7 +39,7 @@ exports.registerController = async (req, res) => {
     const hashedPassword = await hashPassword(password);
     console.log("hashed password is :", hashedPassword);
     //save
-    const user = await new userModel({
+    const user = await new User({
       name: name,
       email: email,
       phone: phone,
@@ -72,7 +75,7 @@ exports.loginController = async (req, res) => {
       });
     }
     //AUTHENTICATION - we are performing authentication if email and password same as the backend stored authenticated user
-    const user = await userModel.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).send("Email is not registered");
     }
