@@ -1,7 +1,17 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { AiOutlineShoppingCart } from "react-icons/ai";
+import { useAuth } from "../../context/auth";
 function Header() {
+  const [auth, setAuth] = useAuth();
+  const handleLogout = () => {
+    localStorage.removeItem("auth"); // here we are doing both things removing auth from localstorage and setting auth because if we only remove from localstorage we need to refresh the page
+    setAuth({
+      ...auth,
+      user: "",
+      token: "",
+    });
+  };
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -27,16 +37,32 @@ function Header() {
                   Home
                 </NavLink>
               </li>
-              <li className="nav-item">
-                <NavLink to="/register" className="nav-link">
-                  REGISTER
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/login" className="nav-link">
-                  LOGIN
-                </NavLink>
-              </li>
+              {!auth.user ? (
+                <>
+                  <li className="nav-item">
+                    <NavLink to="/register" className="nav-link">
+                      REGISTER
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink to="/login" className="nav-link">
+                      LOGIN
+                    </NavLink>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      onClick={handleLogout}
+                      to="/login"
+                      className="nav-link"
+                    >
+                      LOGOUT
+                    </NavLink>
+                  </li>
+                </>
+              )}
               <li className="nav-item">
                 <NavLink to="/cart" className="nav-link">
                   CART(0)

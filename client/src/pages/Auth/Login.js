@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify"; //this is a library by which we can show fansy notifications
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/AuthStyles.css";
+import { useAuth } from "../../context/auth";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [auth, setAuth] = useAuth();
   const navigate = useNavigate(); //this function is used to redirect user from one page to another after clicking any value
 
   // form function
@@ -27,6 +29,12 @@ const Login = () => {
         //res.data.success is from the backend we are seing if it is succesfully reached the backend
         toast.success(res.data && res.data.message);
         // toast.success("Sucessfully Register now please login");
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
+        });
+        localStorage.setItem("auth", JSON.stringify(res.data));
         navigate("/");
       } else {
         toast.error(res.data.message);

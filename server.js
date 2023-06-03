@@ -1,9 +1,9 @@
 const express = require("express");
-const dotenv = require("dotenv");
-const morgan = require("morgan");
+const dotenv = require("dotenv"); //to manage environment variables
+const morgan = require("morgan"); //It gives us idea about from where request is coming and all in console
 const { connectDB } = require("./config/db.js");
 const authRoute = require("./routes/authRoute.js");
-const cors = require("cors");
+const cors = require("cors"); //just to handle cross origin requests from frontend
 // console.log(authRoute);
 //rest object
 const app = express();
@@ -17,7 +17,7 @@ connectDB();
 //middleware
 app.use(cors());
 app.use(express.json());
-app.use(morgan("dev")); //i think it just give us the colorful console or i don't know
+app.use(morgan("dev"));
 
 //routes
 app.use("/api/v1/auth", authRoute);
