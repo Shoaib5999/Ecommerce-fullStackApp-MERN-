@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt"); //bcrypt is a library which helps us to hash the password
 
 exports.hashPassword = async (password) => {
   try {

@@ -1,17 +1,17 @@
 const { hashPassword, comparePassword } = require("../helpers/authHelper.js");
 const User = require("../models/userModels.js").User;
 // console.log(userModel);
-const JWT = require("jsonwebtoken");
+const JWT = require("jsonwebtoken"); //this token we do send while login
 
 exports.registerController = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
 
   try {
-    const { name, email, password, phone, address } = req.body;
+    const { name, email, password, phone, address } = req.body; //destructuring data coming from req.body
 
     //validations
     if (!name) {
-      return res.send({ error: "Name is Required" });
+      return res.send({ message: "Name is Required" });
     }
     if (!email) {
       return res.send({ message: "Email is Required" });
@@ -36,8 +36,9 @@ exports.registerController = async (req, res) => {
       });
     }
     //register user
-    const hashedPassword = await hashPassword(password);
-    console.log("hashed password is :", hashedPassword);
+    const hashedPassword = await hashPassword(password); //we are able to handle req.body.password directly by passsword because we already d-stuccture everything coming from req.body
+
+    // console.log("hashed password is :", hashedPassword);
     //save
     const user = await new User({
       name: name,
@@ -111,6 +112,39 @@ exports.loginController = async (req, res) => {
       message: "Error in login",
       error,
     });
+  }
+};
+//forgotPassword Controller
+exports.forgotPasswordController = async (req, res) => {
+  const [email, answer, newPassword] = req.body; //destructuring what is coming from req
+  //validatin
+  try {
+    if (!email) {
+      res.status(500).send({ message: "Email is required" });
+    }
+    if (!answer) {
+      res.status(500).send({ message: "Answer is required" });
+    }
+    if (!newPassword) {
+      res.status(500).send({ message: "newPassword is required" });
+    }
+    //check weather given email and the answer is exactly match or not
+    const user = User.findOne({ email, answer }); //here it will search for both the email and the same answer
+    if (!user) {
+      res.status(500).send({
+        success: false,
+        message: "Wrong email or answer",
+      });
+    }
+    //now hash the new password before saving to the db
+    const hashed = await hashPassword(newPassword);
+    await User.findByIdAndUpdate(user._id, { password: hashed });
+    res.status(200).send({
+      success: true,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.log(error);
   }
 };
 
