@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom"; //it gives us functionality of nested
 import axios from "axios";
 import Spinner from "../Spinner";
 
-const PrivateRoute = () => {
+const AdminRoute = () => {
   const [ok, setOk] = useState(false);
   const [auth, setAuth] = useAuth();
 
@@ -14,7 +14,7 @@ const PrivateRoute = () => {
 
       const res = await axios.get(
 
-        `${process.env.REACT_APP_API}/api/v1/auth/user-auth`,
+        `${process.env.REACT_APP_API}/api/v1/auth/admin-auth`,
         {
           headers: {
             Authorization: auth?.token,
@@ -35,4 +35,4 @@ const PrivateRoute = () => {
   return ok ? <Outlet /> : <Spinner />;
 };
 
-export default PrivateRoute;
+export default AdminRoute;

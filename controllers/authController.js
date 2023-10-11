@@ -83,7 +83,7 @@ exports.loginController = async (req, res) => {
     //if user is available we are now performing password match if the password entered on login page is same or not
     const match = await comparePassword(password, user.password);
     if (!match) {
-      return res.status(200).send({
+      return res.status(401).send({
         success: false,
         message: "Invalid Password",
       });
@@ -102,6 +102,7 @@ exports.loginController = async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
+        role:user.role,
       },
       token, //sending the token from login
     });

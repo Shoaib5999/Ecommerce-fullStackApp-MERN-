@@ -29,10 +29,13 @@ const Login = () => {
         //res.data.success is from the backend we are seing if it is succesfully reached the backend
         toast.success(res.data && res.data.message);
         // toast.success("Sucessfully Register now please login");
+        
         setAuth({
           ...auth,
           user: res.data.user,
           token: res.data.token,
+         
+          
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
         navigate("/");

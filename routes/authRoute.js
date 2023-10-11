@@ -6,6 +6,7 @@ const {
   forgotPasswordController,
 } = require("../controllers/authController");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddleware");
+const { token } = require("morgan");
 
 //router object
 const router = express.Router();
@@ -28,6 +29,16 @@ router.get("/user-auth", requireSignIn, (req, res) => {
   res.status(200).send({
     ok: true,
     message: "welcome to the dashboard",
+    
+  });
+});
+//protected admin route
+router.get("/admin-auth", requireSignIn,isAdmin, (req, res) => {
+  // console.log("connected from backend");
+  res.status(200).send({
+    ok: true,
+    message: "welcome to the admin dashboard",
+    
   });
 });
 
