@@ -1,6 +1,6 @@
-const bcrypt = require("bcrypt"); //bcrypt is a library which helps us to hash the password
+import bcrypt from "bcrypt";
 
-exports.hashPassword = async (password) => {
+export const hashPassword = async (password) => {
   try {
     const saltRound = 10;
     const hashedPassword = await bcrypt.hash(password, saltRound);
@@ -10,8 +10,7 @@ exports.hashPassword = async (password) => {
   }
 };
 
-exports.comparePassword = async (password, hashedPassword) => {
+export const comparePassword = async (password, hashedPassword) => {
   const match = await bcrypt.compare(password, hashedPassword);
-  // console.log(match);  //hence it proved that this match or the above function returns boolean
   return match;
 };

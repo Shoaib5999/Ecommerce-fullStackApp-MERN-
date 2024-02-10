@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -33,7 +33,9 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true } //if a new user added its timestamp will be saved too
+  { timestamps: true }
 );
 
-exports.User = mongoose.model("users", userSchema);
+const User = mongoose.model("users", userSchema);
+
+export default User;
