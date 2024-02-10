@@ -20,8 +20,22 @@ const productSchema = new mongoose.Schema({
     },
     category:{
         type:mongoose.ObjectId,
-        ref:"Category"
+        ref:"Category",
+        required:true
+    },
+    quantity:{
+        type:Number,
+        required:true,
+
+    },
+    photo:{
+        type:Buffer,
+        contentType:String,
+
+    },
+    shipping:{
+        type:Boolean,
     }
-})
+},{timestamps:true})
 
 export default mongoose.model("Products",productSchema)
