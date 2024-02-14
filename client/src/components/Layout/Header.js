@@ -65,7 +65,7 @@ function Header() {
                   </NavLink>
                   <ul className="dropdown-menu">
                     <li>
-                    { console.log(auth.user)}
+                    {/* { console.log(auth.user)} */}
                       <NavLink
                         to={`/dashboard/${
                            

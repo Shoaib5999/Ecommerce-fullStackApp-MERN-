@@ -17,12 +17,12 @@ const Spinner = () => {
   return (
     <>
       <div
-        class="d-flex flex-column justify-content-center align-items-center "
+        className="d-flex flex-column justify-content-center align-items-center "
         style={{ height: "100vh" }}
       >
         <h1 className="Text-center">redirecting to you in {count} second </h1>
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
         </div>
       </div>
     </>
