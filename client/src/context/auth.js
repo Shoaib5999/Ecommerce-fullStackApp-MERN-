@@ -1,6 +1,4 @@
-// import axios from "axios";
 import { useState, useEffect, useContext, createContext } from "react";
-// 1) why useState here because we have to change react ui and it can't be done without useState
 //first step is to createContext()
 const AuthContext = createContext();
 
