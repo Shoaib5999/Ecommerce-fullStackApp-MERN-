@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout/Layout";
 import AdminMenu from "../../components/Layout/AdminMenu";
-
+import axios from "axios"
 const CreateProduct = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [categoryList,setCategories] =useState();
   const dropdownItems = [
     "Apple",
     "Banana",
@@ -17,9 +18,9 @@ const CreateProduct = () => {
   // Products states
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(null);
   const [category, setCategory] = useState("");
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(null);
   const [shipping, setShipping] = useState(false);
   const [photo, setPhoto] = useState(null);
 
@@ -35,6 +36,10 @@ const CreateProduct = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    if (!name || !description || !price || !category || !quantity) {
+      alert("Please fill in all required fields.");
+      return;
+    }
     // Log or perform any other action with the form data
     console.log({
       name,
@@ -45,11 +50,40 @@ const CreateProduct = () => {
       shipping,
       photo,
     });
+    setName("");
+  setDescription("");
+  setPrice(null);
+  setCategory("");
+  setQuantity(null);
+  setShipping(false);
+  setPhoto(null);
+  setSelectedItem(null);
   };
 
   const filteredItems = dropdownItems.filter((item) =>
     item.toLowerCase().includes(searchTerm)
   );
+  const getAllCategories = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API}/api/v1/category/get-category`
+      );
+      // console.log(data.category[0])
+      if (data?.success) {
+        console.log(data.categoryz)
+        setCategories(data.category);
+        // console.log("category is",data.category)
+      }
+    } catch (error) {
+      console.log(error);
+      // toast.error("Unable To Fetch Categories");
+    }
+  };
+  useEffect(()=>{
+getAllCategories()
+console.log("category list")
+console.log(categoryList)
+  },[])
 
   return (
     <Layout title={"Dashboard - Create Product"}>
@@ -125,7 +159,7 @@ const CreateProduct = () => {
                     </div>
                   )}
                 </div>
-                <div className="mb-3">
+                <div className="mb-3 w-75">
                   <input
                     type="text"
                     className="form-control"
@@ -135,7 +169,7 @@ const CreateProduct = () => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
-                <div className="mb-3">
+                <div className="mb-3 w-75">
                   <textarea
                     className="form-control"
                     id="exampleFormControlTextarea1"
@@ -147,7 +181,7 @@ const CreateProduct = () => {
                 </div>
                 <input
                   type="number"
-                  className="form-control mb-3"
+                  className="form-control mb-3 w-75"
                   id="exampleFormControlInput1"
                   placeholder="Write A Price"
                   value={price}
@@ -155,13 +189,13 @@ const CreateProduct = () => {
                 />
                 <input
                   type="number"
-                  className="form-control mb-3"
+                  className="form-control mb-3 w-75"
                   id="exampleFormControlInput1"
                   placeholder="Write A Quantity"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                 />
-                <div className="mb-3">
+                <div className="mb-3 w-75" >
                   <label htmlFor="yesNoSelect" className="form-label">
                     Select Shipping:
                   </label>
