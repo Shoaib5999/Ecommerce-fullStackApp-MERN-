@@ -114,7 +114,6 @@ catch(error){
 export const updateProductController = async(req,res)=>{
     try{
     const {name,slug,description,price,category,quantity,shipping}= req.fields
-        
         switch(true){
             case !name:
                 return res.status(500).send({error:"Name Is Required"})
@@ -150,7 +149,12 @@ export const updateProductController = async(req,res)=>{
     //delete COntroller
     export const deleteProductController = async (req,res)=>{
 try{
-    await productModel.findByIdAndDelete(req.params.pid)
+    const deleted = await productModel.findByIdAndDelete(req.params.pid)
+    res.status(200).send({
+        success:true,
+        message:"Deleted Successfully",
+
+    })
 }
 catch(error){
     console.log(error)

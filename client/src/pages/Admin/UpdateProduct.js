@@ -77,8 +77,10 @@ const UpdateProduct = () => {
       productData.append("description", description);
       productData.append("price", price);
       productData.append("quantity", quantity);
-      photo && productData.append("photo", photo);
       productData.append("category", category);
+      if (photo) {
+        productData.append("photo", photo);
+      }
       //   const { data } = axios.put(
       //     `/api/v1/product/update-product/${id}`,
       //     productData
@@ -86,9 +88,11 @@ const UpdateProduct = () => {
 
       const { data } = await axios.put(
         `${process.env.REACT_APP_API}/api/v1/products/update-product/${p_id}`,
+        productData,
         {
           headers: {
             Authorization: `${auth.token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -108,10 +112,13 @@ const UpdateProduct = () => {
   //delete a product
   const handleDelete = async () => {
     try {
-      let answer = window.prompt("Are You Sure want to delete this product ? ");
-      if (!answer) return;
-      const { data } = await axios.delete(
-        `/api/v1/product/delete-product/${id}`
+      
+      await axios.delete(
+        `${process.env.REACT_APP_API}/api/v1/products/delete-product/${p_id}`, {
+          headers: {
+            Authorization: `${auth.token}`,
+          },
+        }
       );
       toast.success("Product DEleted Succfully");
       navigate("/dashboard/admin/products");

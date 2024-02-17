@@ -12,7 +12,7 @@ router.get("/get-products",getProductController)
 router.get("/get-product/:pid",getSingleProduct)
 router.get("/get-product-photo/:pid",productPhotoController)
 router.put("/update-product/:pid",requireSignIn,isAdmin,formidableMiddleware(),updateProductController)
-router.delete("delete-product/:pid",requireSignIn,isAdmin,deleteProductController)
+router.delete("/delete-product/:pid",requireSignIn,isAdmin,deleteProductController)
 // router.put("/update-product/:id",requireSignIn,isAdmin,updateProductController)
 
 export default router;
