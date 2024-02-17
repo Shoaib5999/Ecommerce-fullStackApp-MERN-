@@ -50,7 +50,6 @@ try{
 // const products = await (await productModel.find()).filter("-photo").limit(req.params.count).sort({createdAt:-1})
 const products = await productModel.find()
   .select('-photo')  // Exclude the 'photo' field
-  .limit(req.params.count)
   .sort({ createdAt: -1 })
   .lean();  // Convert Mongoose documents to plain JavaScript objects
 
@@ -74,7 +73,7 @@ res.status(200).send({
 export const getSingleProduct = async(req,res)=>{
 try{
  
-    const products = await productModel.findOne({slug:req.params.slug})
+    const products = await productModel.findOne({_id:req.params.pid})
   .select('-photo')  // Exclude the 'photo' field
   .limit(req.params.count)
   res.status(200).send({

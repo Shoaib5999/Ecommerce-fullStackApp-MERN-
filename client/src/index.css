@@ -97,4 +97,7 @@
     background-color: #434343;
     color: white;
   }
-  
+  .product-link{
+    text-decoration: none !important;
+    color: black;
+  }
