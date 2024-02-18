@@ -35,16 +35,29 @@ const getAllCategories = async () => {
 }
 useEffect(()=>{
   getAllProducts();
+  getAllCategories();
 },[])
   return (
     <>
       <Layout title={"ALl Products - Best Offers"}>
         <div className="row">
           <div className="col-md-3">
-            <h6 className="text-center">Filter By Category</h6>
+            <h4 className="text-center mt-4">Filter By Category</h4>
+            <div className="">
+      {categories.map((c,i)=>(
+        <>
+            <div className="form-check">
+        <input className="form-check-input" type="checkbox" value="" id="exampleCheckbox"/>
+    <label className="form-check-label" for="exampleCheckbox">
+        {c.name}
+    </label>
+    </div>  
+        </>
+      ))}
+      </div>
           </div>
           <div className="col-md-9">
-            <h1 className="text-center">All Products</h1>
+            <h1 className="text-center mt-4">All Products</h1>
             <div className="d-flex flex-wrap">
   {products?.map((p, i) => (
     <div className="card" style={{ width: '18rem', margin: '10px' }}>
