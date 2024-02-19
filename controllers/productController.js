@@ -163,3 +163,39 @@ catch(error){
     })
 }
     } 
+
+    //product count controller
+    export const getProductCountController = async(req,res)=>{
+        try{
+            const total = await productModel.find({}).estimatedDocumentCount();
+            res.status(200).send({
+                success:false,
+                total,
+            })
+        }catch(error){
+            console.log(error),
+            res.status(500).send({
+                message:"Error in Count product",
+                error,
+            })
+        }
+    }
+//get product perpage
+export const getProductsPerPageController = async(req,res)=>{
+    const perPage=2
+    const page = parseInt(req.params.page) || 1;
+    try{
+        const products = await productModel.find({}).select("-photo").skip((page-1)*perPage).limit(perPage).sort({createdAt:-1})
+        res.status(200).send({
+            success:true,
+            message:"Products Per Page",
+            products,
+        })
+    }catch(error){
+        console.log(error)
+        res.status(500).send({
+                message:"Error in Get Products Per Page",
+                error,
+        })
+    }
+}

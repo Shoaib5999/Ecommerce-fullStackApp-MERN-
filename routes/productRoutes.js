@@ -1,6 +1,6 @@
 import express from "express";
 import { isAdmin, requireSignIn } from "./../middlewares/authMiddleware.js";
-import { createProductController, deleteProductController, getProductController, getSingleProduct, productPhotoController, updateProductController, } from "../controllers/productController.js";
+import { createProductController, deleteProductController, getProductController, getProductCountController, getProductsPerPageController, getSingleProduct, productPhotoController, updateProductController, } from "../controllers/productController.js";
 import formidableMiddleware from  'express-formidable';
 
 
@@ -13,6 +13,11 @@ router.get("/get-product/:pid",getSingleProduct)
 router.get("/get-product-photo/:pid",productPhotoController)
 router.put("/update-product/:pid",requireSignIn,isAdmin,formidableMiddleware(),updateProductController)
 router.delete("/delete-product/:pid",requireSignIn,isAdmin,deleteProductController)
+
+//count product
+router.get("/get-product-count",getProductCountController)
 // router.put("/update-product/:id",requireSignIn,isAdmin,updateProductController)
+//get product perpage
+router.get("/get-products-per-page/:page",getProductsPerPageController)
 
 export default router;

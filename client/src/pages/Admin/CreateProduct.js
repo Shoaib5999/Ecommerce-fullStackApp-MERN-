@@ -55,9 +55,11 @@ const CreateProduct = () => {
       productData.append("photo", photo);
       productData.append("category", category);
       const { data } = axios.post(
-        `${process.env.REACT_APP_API}/api/v1/products/create-product`,productData,{ headers: {
-          Authorization:`Bearer ${auth.token}`,
-        },}
+        `${process.env.REACT_APP_API}/api/v1/products/create-product`,productData, {
+          headers: {
+            Authorization: `${auth.token}`,
+          },
+        }
       );
       if (data?.success) {
         toast.error(data?.message);

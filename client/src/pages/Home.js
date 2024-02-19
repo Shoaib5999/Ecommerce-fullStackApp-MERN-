@@ -3,87 +3,103 @@ import Layout from "../components/Layout/Layout";
 import { useAuth } from "../context/auth";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 function Home() {
-  const [auth, setAuth] = useAuth(); //this useAuth is a custom hook jisme hamlog kuch nhi kiye hai bas useContext hook me as an argument authContext pass kiye hai jo ki barabbar hai createContext ke
+  const [auth, setAuth] = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [checked,setChecked] = useState([])
-  const [selectedCat , setSelectedCat] =useState(true)
+  const [checked, setChecked] = useState([]);
+  const [selectedCat, setSelectedCat] = useState(true);
+  const [page,setPage]= useState(1)
+
   //get All Categories
- useEffect(()=>{
-  if(checked.length!=0){
-setSelectedCat(false)
-  }
-  getAllProducts();
- },[checked])
+  useEffect(() => {
+    if (checked.length !== 0) {
+      setSelectedCat(false);
+    }
+    console.log(products)
+    getAllProducts();
+  }, [checked,page]);
+
   const getAllCategories = async () => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_API}/api/v1/category/get-category`
       );
-      // console.log(data.category[0])
+
       if (data?.success) {
         setCategories(data.category);
-        // console.log("category is",data.category)
       }
     } catch (error) {
       console.log(error);
       toast.error("Unable To Fetch Categories");
     }
   };
-  const getAllProducts = async (req, res) => {
-   
+
+  const getAllProducts = async () => {  
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/products/get-products`
-      );
-        setProducts(data.products);
+      // const { data } = await axios.get(
+      //   `${process.env.REACT_APP_API}/api/v1/products/get-products`
+      // );
+        const {data} = await axios.get(`${process.env.REACT_APP_API}/api/v1/products/get-products-per-page/${page}`)
+      if (checked.length > 0) {
+        // If at least one category is selected, filter by category
+        console.log("product filter is working");
+        // console.log(data.products); // Assuming that products is an array
+        let filteredProducts = data.products.filter((fp)=>checked.includes(String(fp.category)))
+      setProducts(filteredProducts,data)
+        // setProducts(filteredProducts);
+      } 
+      else {
+products? setProducts([...products,...data.products]):setProducts(data.products)
+
+      }
     } catch (error) {
       console.log(error);
       toast.error("Something Went Wrong");
     }
   };
-  const handleFilter=(value,id)=>{
-    let all = [...checked]
-    if(value){
-      all.push(id)
-    }else{
+
+  const handleFilter = (value, id) => {
+    let all = [...checked];
+    if (value) {
+      all.push(id);
+    } else {
       all = all.filter((item) => item !== id);
-        }
-    setChecked(all)
-  }
+    }
+    setChecked(all);
+  };
+
   useEffect(() => {
     getAllProducts();
     getAllCategories();
+   
   }, []);
+
   return (
     <>
-      <Layout title={"ALl Products - Best Offers"}>
-      {checked.map(item => (
-            <li key={item}>{item}</li>
-          ))}
+      <Layout title={"All Products - Best Offers"}>
+       
         <div className="row">
           <div className="col-md-3">
             <h4 className="text-center mt-4">Filter By Category</h4>
             <div className="">
               {categories.map((c, i) => (
-                <>
-                  <div className="form-check" key={i}>
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      value=""
-                      id="exampleCheckbox"
-                      onChange={(e) => handleFilter(e.target.checked,c._id)}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="exampleCheckbox"
-                    >
-                      {c.name}
-                    </label>
-                  </div>
-                </>
+                <div className="form-check" key={i}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    value=""
+                    id={`categoryCheckbox_${c._id}`}
+                    onChange={(e) => handleFilter(e.target.checked, c._id)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`categoryCheckbox_${c._id}`}
+                  >
+                    {c.name}
+                  </label>
+                </div>
               ))}
             </div>
           </div>
@@ -103,7 +119,9 @@ setSelectedCat(false)
                   />
                   <div className="card-body">
                     <h5 className="card-title">{p.name}</h5>
-                    <p className="card-text">{p.description}</p>
+                    <p className="card-text">{p.description.substring(0,30)}...</p>
+                    <p className="card-text"> ${p.price}</p>
+
                     <div className="d-flex ">
                       <button href="#" className="btn btn-primary ms-4">
                         Details
@@ -116,10 +134,12 @@ setSelectedCat(false)
                 </div>
               ))}
             </div>
+            <div className="mt-3 p-2">
+              <button className="btn btn-danger" onClick={()=>setPage(page+1)}>Next Page</button>
+            </div>
           </div>
         </div>
       </Layout>
-      ;
     </>
   );
 }
