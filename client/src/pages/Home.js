@@ -37,10 +37,7 @@ setSelectedCat(false)
       const { data } = await axios.get(
         `${process.env.REACT_APP_API}/api/v1/products/get-products`
       );
-      if(!checked){
-        setProducts(data.products);}else{
-          let filterProducts = data.products.filter()
-        }
+        setProducts(data.products);
     } catch (error) {
       console.log(error);
       toast.error("Something Went Wrong");
