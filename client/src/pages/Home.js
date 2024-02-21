@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 function Home() {
   const [auth, setAuth] = useAuth();
   const [products, setProducts] = useState([]);
+  const [filteredProducts,setFilteredProducts] = useState([])
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [selectedCat, setSelectedCat] = useState(true);
@@ -14,11 +15,11 @@ function Home() {
 
   //get All Categories
   useEffect(() => {
-    if (checked.length !== 0) {
-      setSelectedCat(false);
-    }
-    console.log(products)
+    // if (checked.length !== 0) {
+    //   setSelectedCat(false);
+    // }
     getAllProducts();
+    // getFilteredProducts()
   }, [checked,page]);
 
   const getAllCategories = async () => {
@@ -41,29 +42,26 @@ function Home() {
       // const { data } = await axios.get(
       //   `${process.env.REACT_APP_API}/api/v1/products/get-products`
       // );
-        const {data} = await axios.get(`${process.env.REACT_APP_API}/api/v1/products/get-products-per-page/${page}`)
-      if (checked.length > 0) {
-        // If at least one category is selected, filter by category
-        console.log("product filter is working");
-        // console.log(data.products); // Assuming that products is an array
-        let filteredProducts = data.products.filter((fp)=>checked.includes(String(fp.category)))
-      setProducts(filteredProducts,data)
-        // setProducts(filteredProducts);
-      } 
-      else {
-products? setProducts([...products,...data.products]):setProducts(data.products)
+        const {data} = await axios.post(`${process.env.REACT_APP_API}/api/v1/products/get-products-per-page/${page}`,{checked})
+     
+// products? setProducts([...products,...data.products]):setProducts(data.products)
+setProducts(data.products)
 
-      }
     } catch (error) {
       console.log(error);
       toast.error("Something Went Wrong");
     }
   };
-
+// const getFilteredProducts = async()=>{
+//   const {data} = await axios.post(`${process.env.REACT_APP_API}/api/v1/products/get-filter-products-per-page/${page}`,{checked})
+// setProducts(data.products)
+  
+// console.log(data)
+// }
   const handleFilter = (value, id) => {
     let all = [...checked];
     if (value) {
-      all.push(id);
+      all.push(`${id}`);
     } else {
       all = all.filter((item) => item !== id);
     }
@@ -73,6 +71,7 @@ products? setProducts([...products,...data.products]):setProducts(data.products)
   useEffect(() => {
     getAllProducts();
     getAllCategories();
+    // getFilteredProducts()
    
   }, []);
 

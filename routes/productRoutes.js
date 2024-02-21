@@ -18,6 +18,5 @@ router.delete("/delete-product/:pid",requireSignIn,isAdmin,deleteProductControll
 router.get("/get-product-count",getProductCountController)
 // router.put("/update-product/:id",requireSignIn,isAdmin,updateProductController)
 //get product perpage
-router.get("/get-products-per-page/:page",getProductsPerPageController)
-
+router.post("/get-products-per-page/:page",getProductsPerPageController)
 export default router;
