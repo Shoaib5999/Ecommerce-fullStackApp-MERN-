@@ -7,11 +7,11 @@ import { toast } from "react-toastify";
 function Home() {
   const [auth, setAuth] = useAuth();
   const [products, setProducts] = useState([]);
-  const [filteredProducts,setFilteredProducts] = useState([])
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [selectedCat, setSelectedCat] = useState(true);
-  const [page,setPage]= useState(1)
+  const [page, setPage] = useState(1);
 
   //get All Categories
   useEffect(() => {
@@ -20,7 +20,7 @@ function Home() {
     // }
     getAllProducts();
     // getFilteredProducts()
-  }, [checked,page]);
+  }, [checked, page]);
 
   const getAllCategories = async () => {
     try {
@@ -37,27 +37,29 @@ function Home() {
     }
   };
 
-  const getAllProducts = async () => {  
+  const getAllProducts = async () => {
     try {
       // const { data } = await axios.get(
       //   `${process.env.REACT_APP_API}/api/v1/products/get-products`
       // );
-        const {data} = await axios.post(`${process.env.REACT_APP_API}/api/v1/products/get-products-per-page/${page}`,{checked})
-     
-// products? setProducts([...products,...data.products]):setProducts(data.products)
-setProducts(data.products)
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_API}/api/v1/products/get-products-per-page/${page}`,
+        { checked }
+      );
 
+      // products? setProducts([...products,...data.products]):setProducts(data.products)
+      setProducts(data.products);
     } catch (error) {
       console.log(error);
       toast.error("Something Went Wrong");
     }
   };
-// const getFilteredProducts = async()=>{
-//   const {data} = await axios.post(`${process.env.REACT_APP_API}/api/v1/products/get-filter-products-per-page/${page}`,{checked})
-// setProducts(data.products)
-  
-// console.log(data)
-// }
+  // const getFilteredProducts = async()=>{
+  //   const {data} = await axios.post(`${process.env.REACT_APP_API}/api/v1/products/get-filter-products-per-page/${page}`,{checked})
+  // setProducts(data.products)
+
+  // console.log(data)
+  // }
   const handleFilter = (value, id) => {
     let all = [...checked];
     if (value) {
@@ -72,13 +74,11 @@ setProducts(data.products)
     getAllProducts();
     getAllCategories();
     // getFilteredProducts()
-   
   }, []);
 
   return (
     <>
       <Layout title={"All Products - Best Offers"}>
-       
         <div className="row">
           <div className="col-md-3">
             <h4 className="text-center mt-4">Filter By Category</h4>
@@ -118,7 +118,9 @@ setProducts(data.products)
                   />
                   <div className="card-body">
                     <h5 className="card-title">{p.name}</h5>
-                    <p className="card-text">{p.description.substring(0,30)}...</p>
+                    <p className="card-text">
+                      {p.description.substring(0, 30)}...
+                    </p>
                     <p className="card-text"> ${p.price}</p>
 
                     <div className="d-flex ">
@@ -134,7 +136,12 @@ setProducts(data.products)
               ))}
             </div>
             <div className="mt-3 p-2">
-              <button className="btn btn-danger" onClick={()=>setPage(page+1)}>Next Page</button>
+              <button
+                className="btn btn-danger"
+                onClick={() => setPage(page + 1)}
+              >
+                Next Page
+              </button>
             </div>
           </div>
         </div>
