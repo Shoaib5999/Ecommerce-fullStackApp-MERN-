@@ -180,38 +180,60 @@ export const getProductCountController = async (req, res) => {
 };
 //get product perpage
 export const getProductsPerPageController = async (req, res) => {
-    const perPage = 2;
-    const { checked } = req.body;
-    const page = parseInt(req.params.page) || 1;
-  
-    try {
-      console.log('Received checked array:', checked);
-  
-      const query = checked && checked.length > 0 ? { category: { $in: checked.map(String) } } : {};
-      console.log('Generated query:', query);
-  
-      const products = await productModel
-        .find(query)
-        .select("-photo")
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .sort({ createdAt: -1 });
-  
-      console.log('Products:', products);
-  
-      res.status(200).send({
-        success: true,
-        message: "Filtered Products Per Page",
-        products,
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).send({
-        message: "Error in Get Products Per Page",
-        error,
-      });
-    }
-  };
-  
-  
+  const perPage = 2;
+  const { checked, search } = req.body;
+  const page = parseInt(req.params.page) || 1;
 
+  try {
+    console.log("Received checked array:", checked);
+
+    const query =
+      checked && checked.length > 0
+        ? { category: { $in: checked.map(String) } }
+        : {};
+    console.log("Generated query:", query);
+
+    const products = await productModel
+      .find(query)
+      .select("-photo")
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .sort({ createdAt: -1 });
+
+    console.log("Products:", products);
+
+    res.status(200).send({
+      success: true,
+      message: "Filtered Products Per Page",
+      products,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({
+      message: "Error in Get Products Per Page",
+      error,
+    });
+  }
+};
+export const searchProductsController = async (req, res) => {
+  try {
+    let { keyword } = req.params;
+    const results = await productModel
+      .find({
+        $or: [
+          { name: { $regex: keyword, $option: "i" } },
+          { description: { $regex: keyword, $option: "i" } },
+        ],
+      })
+      .select("-photo");
+    res.status(200).send({
+      message: true,
+      results,
+    });
+  } catch (error) {
+    res.status(400).send({
+      message: "Error in search",
+      error,
+    });
+  }
+};
