@@ -9,6 +9,7 @@ const Search = () => {
 
   const handleSubmit = (e) => {
     // e.preventDefault();
+    localStorage.setItem("search", value);
     navigate(`./search/${search}`);
   };
 

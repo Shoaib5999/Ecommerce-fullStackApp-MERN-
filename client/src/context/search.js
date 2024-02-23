@@ -6,7 +6,8 @@ const SearchContext = createContext("demo");
 // Step 2: Create a provider component
 const SearchProvider = ({ children }) => {
   // Step 2a: Define state for the search
-  const [search, setSearch] = useState();
+  const storedSearch = localStorage.getItem("search") || "";
+  const [search, setSearch] = useState(storedSearch);
 
   // Step 2b: Provide the state through the context
   return (
