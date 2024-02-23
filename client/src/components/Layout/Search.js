@@ -1,20 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { useSearch } from "../../context/search";
+import { useNavigate } from "react-router-dom";
 
 const Search = () => {
-  // const [search, setSearch] = useState("");
-  let search = useSearch();
+  const navigate = useNavigate();
+  let { search, setSearch } = useSearch();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate(`./search/${search}`);
+  };
+
   return (
-    <div className="input-group w-25">
+    <form className="input-group w-25" onSubmit={handleSubmit}>
       <input
         type="search"
         className="form-control"
         placeholder="Search"
         aria-label="Search"
-        onChange={(e) => search(e.target.value)}
+        onChange={(e) => setSearch(e.target.value)}
       />
-      <button className="btn btn-primary">Search</button>
-    </div>
+      <button type="submit" className="btn btn-primary">
+        Search
+      </button>
+    </form>
   );
 };
 

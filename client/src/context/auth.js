@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext } from "react";
 //first step is to createContext()
-const AuthContext = createContext();
+const AuthContext = createContext(); //this always returns a object
 
 const AuthProvider = ({ children }) => {
   //this AuthProvider should alwaays be on top level
@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
     const data = localStorage.getItem("auth");
     if (data) {
       const parseData = JSON.parse(data); //this function JSON.parse(data) changes js string to json object
-      
+
       setAuth({
         ...auth,
         user: parseData.user,

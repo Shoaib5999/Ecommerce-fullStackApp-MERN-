@@ -1,20 +1,29 @@
 import { useState, useContext, createContext } from "react";
-//first step is to createContext()
-const SearchContext = createContext();
 
+// Step 1: Create a context
+const SearchContext = createContext("demo");
+
+// Step 2: Create a provider component
 const SearchProvider = ({ children }) => {
-  const [search, setSearch] = useState("");
+  // Step 2a: Define state for the search
+  const [search, setSearch] = useState();
 
+  // Step 2b: Provide the state through the context
   return (
-    <SearchContext.Provider value={[search, setSearch]}>
+    <SearchContext.Provider value={{ search, setSearch }}>
       {children}
-      {/* <Child></Child>    if this was the case value would pass to this CHild component here same thing is happening with above */}
     </SearchContext.Provider>
   );
 };
 
-//creating a custom hook
-const useSearch = () => useContext(SearchContext);
-export { useSearch, SearchProvider }; //AuthProvider has it's only one ues and in the very parent Component like index.js we should wrap App.js there with AuthProvider
+// Step 3: Create a custom hook to consume the context
+const useSearch = () => {
+  // Step 3a: Consume the context using useContext
+  const { search, setSearch } = useContext(SearchContext);
 
-//now we can use it and can access from any where to its children
+  // Step 3b: Return the state and updater function
+  return { search, setSearch };
+};
+
+// Export the custom hook and provider
+export { useSearch, SearchProvider };
