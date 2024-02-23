@@ -217,15 +217,18 @@ export const getProductsPerPageController = async (req, res) => {
 };
 export const searchProductsController = async (req, res) => {
   try {
-    let { keyword } = req.params;
+    let keyword = req.params.keyword; // Extracting 'search' parameter
+    console.log(keyword);
+
     const results = await productModel
       .find({
         $or: [
-          { name: { $regex: keyword, $option: "i" } },
-          { description: { $regex: keyword, $option: "i" } },
+          { name: { $regex: keyword, $options: "i" } },
+          { description: { $regex: keyword, $options: "i" } },
         ],
       })
       .select("-photo");
+
     res.status(200).send({
       message: true,
       results,

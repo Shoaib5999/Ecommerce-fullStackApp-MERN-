@@ -6,18 +6,20 @@ const SearchProducts = () => {
   const [products, setProducts] = useState();
   const [loading, setLoading] = useState(true);
   let { search, setSearch } = useSearch();
+  // let search = "demo";
   useEffect(() => {
     getProducts();
+    console.log(search);
   }, []);
 
   const getProducts = async (req, res) => {
-    console.log(search);
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/products/search/demo`
+        `${process.env.REACT_APP_API}/api/v1/products/search/${search}`
       );
       // console.log(data);
       setLoading(false);
+      setProducts(data?.results);
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -27,13 +29,13 @@ const SearchProducts = () => {
   return (
     <>
       <Layout>
-        <h1>heyy</h1>
+        <h1>Products for :{search}</h1>
         {loading ? (
           <p>Loading...</p>
         ) : (
           <div className="d-flex flex-wrap">
             {/* {console.log(products)} */}
-            {products?.category.map((p, i) => (
+            {products?.map((p, i) => (
               <div
                 className="card"
                 style={{ width: "18rem", margin: "10px" }}
