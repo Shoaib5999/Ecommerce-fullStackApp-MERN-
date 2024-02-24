@@ -47,8 +47,10 @@ function Home() {
         { checked }
       );
 
-      // products? setProducts([...products,...data.products]):setProducts(data.products)
-      setProducts(data.products);
+      products
+        ? setProducts([...products, ...data.products])
+        : setProducts(data.products);
+      // setProducts(data.products);
     } catch (error) {
       console.log(error);
       toast.error("Something Went Wrong");
