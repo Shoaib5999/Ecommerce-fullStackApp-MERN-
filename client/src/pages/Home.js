@@ -3,6 +3,7 @@ import Layout from "../components/Layout/Layout";
 import { useAuth } from "../context/auth";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 function Home() {
   const [auth, setAuth] = useAuth();
@@ -106,6 +107,7 @@ function Home() {
           </div>
           <div className="col-md-9">
             <h1 className="text-center mt-4">All Products</h1>
+
             <div className="d-flex flex-wrap">
               {products?.map((p, i) => (
                 <div
@@ -126,9 +128,11 @@ function Home() {
                     <p className="card-text"> ${p.price}</p>
 
                     <div className="d-flex ">
-                      <button href="#" className="btn btn-primary ms-4">
-                        Details
-                      </button>
+                      <Link to={`${p.slug}`}>
+                        <button href="#" className="btn btn-primary ms-4">
+                          Details
+                        </button>
+                      </Link>
                       <button href="#" className="btn btn-secondary ms-4">
                         Add To Cart
                       </button>

@@ -24,7 +24,7 @@ router.post(
   createProductController
 );
 router.get("/get-products", getProductController);
-router.get("/get-product/:pid", getSingleProduct);
+router.get("/get-product/:slug", getSingleProduct);
 router.get("/get-product-photo/:pid", productPhotoController);
 router.put(
   "/update-product/:pid",

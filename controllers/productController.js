@@ -72,8 +72,9 @@ export const getProductController = async (req, res) => {
 
 export const getSingleProduct = async (req, res) => {
   try {
+    console.log("getsingleprodyct route");
     const products = await productModel
-      .findOne({ _id: req.params.pid })
+      .findOne({ slug: req.params.slug })
       .select("-photo") // Exclude the 'photo' field
       .limit(req.params.count);
     res.status(200).send({

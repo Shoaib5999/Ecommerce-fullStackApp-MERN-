@@ -19,6 +19,7 @@ import Profile from "./pages/user/Profile";
 import Product from "./pages/Admin/Product";
 import UpdateProduct from "./pages/Admin/UpdateProduct";
 import SearchProducts from "./pages/SearchProducts";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
         </Route>
         <Route path="/login" element={<Login></Login>} />
         <Route path="/search/:keyword" element={<SearchProducts />} />
-
+        <Route path="/:slug" element={<ProductDetails />} />
         <Route path="/about" element={<About></About>} />
         <Route path="/contact" element={<Contact></Contact>} />
         <Route path="/policy" element={<Policy></Policy>} />
