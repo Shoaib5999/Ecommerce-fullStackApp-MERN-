@@ -18,4 +18,4 @@ const CartProvider = ({ children }) => {
 
 // custom hook
 const useCart = () => useContext(CartContext);
-import { useState, useEffect, useContext, createContext } from "react";
+export { useCart, CartProvider };

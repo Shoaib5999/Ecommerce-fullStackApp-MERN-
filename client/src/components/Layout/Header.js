@@ -98,7 +98,7 @@ function Header() {
                 </>
               )}
               <li className="nav-item">
-                <NavLink to="/cart" className="nav-link">
+                <NavLink to="/dashboard/shopping/cart" className="nav-link">
                   CART(0)
                 </NavLink>
               </li>
