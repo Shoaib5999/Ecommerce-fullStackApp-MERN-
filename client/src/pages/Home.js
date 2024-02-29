@@ -4,6 +4,7 @@ import { useAuth } from "../context/auth";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/cart";
 
 function Home() {
   const [auth, setAuth] = useAuth();
@@ -13,7 +14,7 @@ function Home() {
   const [checked, setChecked] = useState([]);
   const [selectedCat, setSelectedCat] = useState(true);
   const [page, setPage] = useState(1);
-
+  const [cart, setCart] = useCart();
   //get All Categories
   useEffect(() => {
     // if (checked.length !== 0) {
@@ -133,7 +134,14 @@ function Home() {
                           Details
                         </button>
                       </Link>
-                      <button href="#" className="btn btn-secondary ms-4">
+                      <button
+                        href="#"
+                        className="btn btn-secondary ms-4"
+                        onClick={() => {
+                          setCart([...cart, p]);
+                          toast.success("Added To Cart");
+                        }}
+                      >
                         Add To Cart
                       </button>
                     </div>

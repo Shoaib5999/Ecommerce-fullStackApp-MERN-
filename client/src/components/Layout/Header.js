@@ -4,10 +4,11 @@ import { AiOutlineShoppingCart } from "react-icons/ai";
 import { useAuth } from "../../context/auth";
 import { useLocation } from "react-router-dom";
 import Search from "./Search";
+import { useCart } from "../../context/cart";
 
 function Header() {
   const location = useLocation();
-
+  const [cart] = useCart();
   const [auth, setAuth] = useAuth();
   const handleLogout = () => {
     localStorage.removeItem("auth"); // here we are doing both things removing auth from localstorage and setting auth because if we only remove from localstorage we need to refresh the page
@@ -99,7 +100,7 @@ function Header() {
               )}
               <li className="nav-item">
                 <NavLink to="/dashboard/shopping/cart" className="nav-link">
-                  CART(0)
+                  CART[{cart?.length}]
                 </NavLink>
               </li>
             </ul>
