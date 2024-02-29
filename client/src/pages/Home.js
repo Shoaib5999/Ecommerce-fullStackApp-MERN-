@@ -139,6 +139,10 @@ function Home() {
                         className="btn btn-secondary ms-4"
                         onClick={() => {
                           setCart([...cart, p]);
+                          localStorage.setItem(
+                            "cart",
+                            JSON.stringify([...cart, p])
+                          );
                           toast.success("Added To Cart");
                         }}
                       >
