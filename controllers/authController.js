@@ -135,17 +135,18 @@ export const updateProfileController = async (req, res) => {
       return res.json({ error: "Password is required" });
     }
     const hashedPassword = password ? await hashPassword(password) : undefined;
+
     const updateUser = await User.findByIdAndUpdate(
       req.user._id,
-      {},
       {
         name: name || user.name,
-        password: password || user.password,
+        password: hashedPassword || user.password,
         phone: phone || user.phone,
         address: address || user.address,
       },
       { new: true }
     );
+
     res.status(200).send({
       success: true,
       message: "Profile Updated Successfully",
@@ -159,6 +160,7 @@ export const updateProfileController = async (req, res) => {
     });
   }
 };
+
 export const testController = (req, res) => {
   res.send("Working fine");
 };

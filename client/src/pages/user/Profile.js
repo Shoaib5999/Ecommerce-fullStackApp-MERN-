@@ -32,13 +32,18 @@ const Profile = () => {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API}/api/v1/auth/register`,
+        `${process.env.REACT_APP_API}/api/v1/auth/profile`,
         {
           name,
           email,
           password,
           phone,
           address,
+        },
+        {
+          headers: {
+            Authorization: `${auth.token}`,
+          },
         }
       );
       console.log(res.data);
