@@ -11,11 +11,11 @@ const CreateCatagory = () => {
   const [name, setName] = useState("");
   const [auth] = useAuth();
   const [showForm, setShowForm] = useState(false);
-  const [inputValue,setInputValue]=  useState("")
+  const [inputValue, setInputValue] = useState("");
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(
+      const { data } = await axios.put(
         `${process.env.REACT_APP_API}/api/v1/category/create-category`,
         { name },
         {
@@ -79,37 +79,36 @@ const CreateCatagory = () => {
       toast.error("Could Not Delete");
     }
   };
-  const handleInputChange =(e)=>{
+  const handleInputChange = (e) => {
     // e.preventDefault()
-    setInputValue(e.target.value)
+    setInputValue(e.target.value);
     // console.log(inputValue)
-  }
-const handleEditCategory =async(e,id)=>{
-  // let id=c._id
-  console.log(id)
-  
-  e.preventDefault()
-  try {
-    await axios.put(
-      `${process.env.REACT_APP_API}/api/v1/category/update-category/${id}`,
-      {
-        name: inputValue,
-      },
-      {
-        headers: {
-          Authorization: `${auth?.token}`,
-        },
-      }
-    );
-    
-    toast.success("Category Edited Sucessfully");
-    getAllCategories();
-  } catch (error) {
-    console.log(error);
-    toast.error("Could Not Delete");
-  }
+  };
+  const handleEditCategory = async (e, id) => {
+    // let id=c._id
+    console.log(id);
 
-}
+    e.preventDefault();
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_API}/api/v1/category/update-category/${id}`,
+        {
+          name: inputValue,
+        },
+        {
+          headers: {
+            Authorization: `${auth?.token}`,
+          },
+        }
+      );
+
+      toast.success("Category Edited Sucessfully");
+      getAllCategories();
+    } catch (error) {
+      console.log(error);
+      toast.error("Could Not Delete");
+    }
+  };
   useEffect(() => {
     getAllCategories();
   }, []);
@@ -141,90 +140,86 @@ const handleEditCategory =async(e,id)=>{
                 </thead>
                 <tbody>
                   {categories.map((c, index) => (
-                    
-                      <tr key={index}>
-                        <td>{c.name}</td>
+                    <tr key={index}>
+                      <td>{c.name}</td>
 
-                        <td className="mx-1">
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target={`#exampleModal-${c._id}`}
-                            data-bs-whatever="@mdo"
-                           
-                          >
-                            Edit
-                          </button>
+                      <td className="mx-1">
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target={`#exampleModal-${c._id}`}
+                          data-bs-whatever="@mdo"
+                        >
+                          Edit
+                        </button>
 
-                          <div
-                            className="modal fade"
-                            id={`exampleModal-${c._id}`}
-                            tabIndex="-1"
-                            aria-labelledby={`exampleModalLabel-${c._id}`}
-                            aria-hidden="true"
-                          >
-                            <div className="modal-dialog">
-                              <div className="modal-content">
-                                <div className="modal-header">
-                                  <h1
-                                    className="modal-title fs-5"
-                                    id="exampleModalLabel"
-                                  >
-                                    Edit Category
-                                  </h1>
+                        <div
+                          className="modal fade"
+                          id={`exampleModal-${c._id}`}
+                          tabIndex="-1"
+                          aria-labelledby={`exampleModalLabel-${c._id}`}
+                          aria-hidden="true"
+                        >
+                          <div className="modal-dialog">
+                            <div className="modal-content">
+                              <div className="modal-header">
+                                <h1
+                                  className="modal-title fs-5"
+                                  id="exampleModalLabel"
+                                >
+                                  Edit Category
+                                </h1>
+                                <button
+                                  type="button"
+                                  className="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                ></button>
+                              </div>
+                              <div className="modal-body">
+                                <form
+                                  onSubmit={(e) => {
+                                    handleEditCategory(e, c._id);
+                                  }}
+                                >
+                                  <div className="mb-3">
+                                    <label
+                                      htmlFor="message-text"
+                                      className="col-form-label"
+                                    >
+                                      New Category:
+                                    </label>
+                                    <textarea
+                                      className="form-control"
+                                      id="message-text"
+                                      value={inputValue}
+                                      onChange={handleInputChange}
+                                    ></textarea>
+                                  </div>
                                   <button
-                                    type="button"
-                                    className="btn-close"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                  ></button>
-                                </div>
-                                <div className="modal-body">
-                                  <form onSubmit={(e)=>{handleEditCategory(e,c._id)}}>
-                                    
-                                    <div className="mb-3">
-                                      <label
-                                        htmlFor="message-text"
-                                        className="col-form-label"
-                                      >
-                                        New Category:
-                                      </label>
-                                      <textarea
-                                        className="form-control"
-                                        id="message-text"
-                                        value={inputValue}
-                                        onChange={handleInputChange}
-                                      ></textarea>
-                                    </div>
-                                    <button
                                     type="submit"
                                     className="btn btn-primary"
-                                    
                                   >
                                     Send
                                   </button>
-                                  </form>
-                                </div>
-                                <div className="modal-footer">
-                                  
-                                 
-                                </div>
+                                </form>
                               </div>
+                              <div className="modal-footer"></div>
                             </div>
                           </div>
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => deleteCategory(c._id)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => deleteCategory(c._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>

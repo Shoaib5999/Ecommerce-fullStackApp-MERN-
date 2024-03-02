@@ -31,7 +31,7 @@ const Profile = () => {
     e.preventDefault(); //to prevent refresh after submitting the form we use this function
 
     try {
-      const res = await axios.post(
+      const res = await axios.put(
         `${process.env.REACT_APP_API}/api/v1/auth/profile`,
         {
           name,

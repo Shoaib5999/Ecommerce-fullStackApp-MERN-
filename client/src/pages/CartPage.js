@@ -9,6 +9,7 @@ import Layout from "../components/Layout/Layout";
 const CartPage = () => {
   const [auth, setAuth] = useAuth();
   const [cart, setCart] = useCart();
+  const Navigate = useNavigate();
   const removeItem = (id) => {
     try {
       let myCart = [...cart];
@@ -74,6 +75,34 @@ const CartPage = () => {
               <p>Total | Checkout | Payment</p>
               <hr></hr>
               <h4>Total:${totalPrice()}</h4>
+              {/* <div className="">
+                {auth?.user ? (
+                  <>
+                    <h2>Current Address Is </h2>
+                    <h3>{auth.user.address}</h3>
+                    <button
+                      type="button"
+                      class="btn btn-warning"
+                      onClick={() => {
+                        Navigate("/dashboard/user/profile");
+                      }}
+                    >
+                      Change The Address
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h3>Please Login</h3>
+                    <button
+                      type="button"
+                      class="btn btn-warning"
+                      onClick={() => {
+                        Navigate("/login", { state: "/cart" });
+                      }}
+                    ></button>
+                  </>
+                )}
+              </div> */}
             </div>
           </div>
         </div>
