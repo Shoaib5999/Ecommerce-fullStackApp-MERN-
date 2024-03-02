@@ -1,5 +1,3 @@
-// import { Layout } from "antd";
-// import Layout from "../components/Layout/Layout";
 import React from "react";
 import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
@@ -75,7 +73,7 @@ const CartPage = () => {
               <p>Total | Checkout | Payment</p>
               <hr></hr>
               <h4>Total:${totalPrice()}</h4>
-              {/* <div className="">
+              <div className="">
                 {auth?.user ? (
                   <>
                     <h2>Current Address Is </h2>
@@ -99,10 +97,12 @@ const CartPage = () => {
                       onClick={() => {
                         Navigate("/login", { state: "/cart" });
                       }}
-                    ></button>
+                    >
+                      Login To Continue Shopping
+                    </button>
                   </>
                 )}
-              </div> */}
+              </div>
             </div>
           </div>
         </div>

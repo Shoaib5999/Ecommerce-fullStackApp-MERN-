@@ -33,7 +33,6 @@ function App() {
           <Route path="user" element={<Dashboard />} />
           <Route path="user/orders" element={<Orders />} />
           <Route path="user/profile" element={<Profile />} />
-          <Route path="shopping/cart" element={<CartPage />} />
         </Route>
         <Route path="/dashboard" element={<AdminRoute />}>
           <Route path="admin" element={<AdminDashboard />} />
@@ -49,6 +48,8 @@ function App() {
         <Route path="/about" element={<About></About>} />
         <Route path="/contact" element={<Contact></Contact>} />
         <Route path="/policy" element={<Policy></Policy>} />
+        <Route path="/dashboard/shopping/cart" element={<CartPage />} />
+
         <Route path="/*" element={<PageNotFount></PageNotFount>} />
       </Routes>
     </>
