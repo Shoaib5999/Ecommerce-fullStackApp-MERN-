@@ -1,7 +1,7 @@
 import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 import User from "../models/userModels.js";
 import JWT from "jsonwebtoken";
-
+// import User from "../models/userModels.js";
 export const registerController = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
@@ -127,7 +127,38 @@ export const forgotPasswordController = async (req, res) => {
     console.log(error);
   }
 };
-
+export const updateProfileController = async (req, res) => {
+  try {
+    const { name, email, password, address, phone } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!password) {
+      return res.json({ error: "Password is required" });
+    }
+    const hashedPassword = password ? await hashPassword(password) : undefined;
+    const updateUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {},
+      {
+        name: name || user.name,
+        password: password || user.password,
+        phone: phone || user.phone,
+        address: address || user.address,
+      },
+      { new: true }
+    );
+    res.status(200).send({
+      success: true,
+      message: "Profile Updated Successfully",
+      updateUser,
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      message: "Error while Update Profile",
+      error,
+    });
+  }
+};
 export const testController = (req, res) => {
   res.send("Working fine");
 };

@@ -18,6 +18,13 @@ const CartPage = () => {
       localStorage.setItem("cart", JSON.stringify(myCart));
     } catch (error) {}
   };
+  const totalPrice = () => {
+    let Total = 0;
+    cart?.map((item) => {
+      Total = Total + item.price;
+    });
+    return Total;
+  };
   return (
     <Layout>
       <div className="container">
@@ -36,7 +43,7 @@ const CartPage = () => {
             </h4>
           </div>
           <div className="row">
-            <div className="col-md-9">
+            <div className="col-md-8">
               {cart?.map((p) => (
                 <div className="row m-2 mb-3 card flex-row">
                   <div className="col-md-4">
@@ -62,7 +69,12 @@ const CartPage = () => {
                 </div>
               ))}
             </div>
-            <div className="col-md-3">Checkout|Payment</div>
+            <div className="col-md-4">
+              <h2>Cart Summary</h2>
+              <p>Total | Checkout | Payment</p>
+              <hr></hr>
+              <h4>Total:${totalPrice()}</h4>
+            </div>
           </div>
         </div>
       </div>
