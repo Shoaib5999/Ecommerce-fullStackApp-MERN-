@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
+import DropIn from "braintree-web-drop-in-react";
+import axios from "axios";
 
 const CartPage = () => {
   const [auth, setAuth] = useAuth();
   const [cart, setCart] = useCart();
   const Navigate = useNavigate();
+  const [clientToken, setClientToken] = useState("");
+  const [instance, setInstance] = useState("");
+  const [Loading, setLoading] = useState(false);
   const removeItem = (id) => {
     try {
       let myCart = [...cart];
@@ -24,6 +29,24 @@ const CartPage = () => {
     });
     return Total;
   };
+
+  //get payment gateway token
+  const getToken = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API}/api/v1/products/braintree/token`
+      );
+      setClientToken(data?.clientToken);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getToken();
+  }, [auth?.token]);
+
+  //handle payments
+  const handlePayment = () => {};
   return (
     <Layout>
       <div className="container">
@@ -87,6 +110,24 @@ const CartPage = () => {
                     >
                       Change The Address
                     </button>
+                    <div className="mt-2">
+                      <DropIn
+                        options={{
+                          authorization: clientToken,
+                          paypal: {
+                            flow: "vault",
+                          },
+                        }}
+                        onInstance={(instance) => setInstance(instance)}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        onClick={handlePayment}
+                        disabled={!instance || !auth?.user?.address}
+                      >
+                        Make Payment
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <>
