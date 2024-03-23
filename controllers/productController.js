@@ -1,6 +1,15 @@
 import productModel from "../models/productModel.js";
 import slugify from "slugify";
 import fs from "fs";
+import braintree from "braintree";
+
+//@Payment Gateway
+var gateway = new braintree.BraintreeGateway({
+  environment: braintree.Environment.Sandbox,
+  merchantId: "your_sandbox_merchant_id",
+  publicKey: "sandbox_public_key_here",
+  privateKey: "sandbox_private_key_here",
+});
 
 export const createProductController = async (req, res) => {
   try {
@@ -239,5 +248,28 @@ export const searchProductsController = async (req, res) => {
       message: "Error in search",
       error,
     });
+  }
+};
+
+//payment gateway api
+//token
+export const braintreeTokenController = async (req,res) => {
+  try{
+    gateway.clientToken.generate({},function(err,response){
+      if(err){
+        res.status(500).send(err)
+      }else{
+        res.send(response)
+      }
+    })
+  }
+  catch(error){
+    console.log(error)
+  }
+};
+export const brainTreePaymentController = async () => {
+  try{}
+  catch(error){
+    console.log(error)
   }
 };

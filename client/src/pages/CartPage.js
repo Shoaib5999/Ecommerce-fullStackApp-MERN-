@@ -95,7 +95,9 @@ const CartPage = () => {
                       type="button"
                       class="btn btn-warning"
                       onClick={() => {
-                        Navigate("/login", { state: "/cart" });
+                        Navigate("/login", {
+                          state: "/dashboard/shopping/cart",
+                        });
                       }}
                     >
                       Login To Continue Shopping
