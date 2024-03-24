@@ -119,7 +119,7 @@ const UpdateProduct = () => {
         },
       });
       toast.success("Product Deleted Succfully");
-      // navigate("/dashboard/admin/products");
+      navigate("/dashboard/admin/products");
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
