@@ -18,7 +18,6 @@ const app = express();
 dotenv.config();
 
 // Database configuration
-connectDB();
 
 // Middleware
 app.use(cors());
@@ -35,8 +34,9 @@ app.use("/api/v1/products", productRoutes);
 app.use("*", function (req, res) {
   res.sendFile(join(__dirname, "./client/build/index.html"));
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+connectDB().then(() => {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 });

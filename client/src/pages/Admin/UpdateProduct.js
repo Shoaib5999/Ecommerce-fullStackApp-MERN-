@@ -118,8 +118,8 @@ const UpdateProduct = () => {
           Authorization: `${auth.token}`,
         },
       });
-      toast.success("Product DEleted Succfully");
-      navigate("/dashboard/admin/products");
+      toast.success("Product Deleted Succfully");
+      // navigate("/dashboard/admin/products");
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");

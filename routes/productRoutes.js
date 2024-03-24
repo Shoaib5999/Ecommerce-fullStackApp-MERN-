@@ -36,7 +36,7 @@ router.put(
   updateProductController
 );
 router.delete(
-  "/delete-product/:pid",
+  "/delete-product/:slug",
   requireSignIn,
   isAdmin,
   deleteProductController

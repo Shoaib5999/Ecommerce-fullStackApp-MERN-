@@ -168,7 +168,9 @@ export const updateProductController = async (req, res) => {
 //delete COntroller
 export const deleteProductController = async (req, res) => {
   try {
-    const deleted = await productModel.findByIdAndDelete(req.params.pid);
+    const deleted = await productModel.findOneAndDelete({
+      slug: req.params.slug,
+    });
     res.status(200).send({
       success: true,
       message: "Deleted Successfully",
