@@ -12,7 +12,7 @@ const { Option } = Select;
 const UpdateProduct = () => {
   const navigate = useNavigate();
   const { p_id } = useParams();
-  const [auth]=useAuth()
+  const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -27,7 +27,7 @@ const UpdateProduct = () => {
   const getSingleProduct = async () => {
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/products/get-product/${p_id}`
+        `/api/v1/products/get-product/${p_id}`
         // `/api/v1/product/get-product/${params.slug}`
       );
       //   console.log(data)
@@ -50,9 +50,7 @@ const UpdateProduct = () => {
   //get all category
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/category/get-category`
-      );
+      const { data } = await axios.get(`/api/v1/category/get-category`);
       if (data?.success) {
         setCategories(data?.category);
       }
@@ -68,7 +66,9 @@ const UpdateProduct = () => {
 
   //create product function
   const handleUpdate = async (e) => {
-    {console.log(auth.token);}
+    {
+      console.log(auth.token);
+    }
 
     e.preventDefault();
     try {
@@ -87,7 +87,7 @@ const UpdateProduct = () => {
       //   );
 
       const { data } = await axios.put(
-        `${process.env.REACT_APP_API}/api/v1/products/update-product/${p_id}`,
+        `/api/v1/products/update-product/${p_id}`,
         productData,
         {
           headers: {
@@ -112,14 +112,11 @@ const UpdateProduct = () => {
   //delete a product
   const handleDelete = async () => {
     try {
-      
-      await axios.delete(
-        `${process.env.REACT_APP_API}/api/v1/products/delete-product/${p_id}`, {
-          headers: {
-            Authorization: `${auth.token}`,
-          },
-        }
-      );
+      await axios.delete(`/api/v1/products/delete-product/${p_id}`, {
+        headers: {
+          Authorization: `${auth.token}`,
+        },
+      });
       toast.success("Product DEleted Succfully");
       navigate("/dashboard/admin/products");
     } catch (error) {
@@ -147,9 +144,8 @@ const UpdateProduct = () => {
                   setCategory(value);
                 }}
                 value={category}
-               
               >
-                 {console.log(category)}
+                {console.log(category)}
                 {categories?.map((c) => (
                   <Option key={c._id} value={c._id}>
                     {c.name}
@@ -181,7 +177,7 @@ const UpdateProduct = () => {
                 ) : (
                   <div className="text-center">
                     <img
-                      src={`${process.env.REACT_APP_API}/api/v1/products/get-product-photo/${p_id}`}
+                      src={`/api/v1/products/get-product-photo/${p_id}`}
                       alt="product_photo"
                       height={"200px"}
                       className="img img-responsive"

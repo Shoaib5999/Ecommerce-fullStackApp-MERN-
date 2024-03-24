@@ -9,25 +9,18 @@ const AdminRoute = () => {
   const [auth, setAuth] = useAuth();
 
   useEffect(() => {
-
     const authcheck = async () => {
-
-      const res = await axios.get(
-
-        `${process.env.REACT_APP_API}/api/v1/auth/admin-auth`,
-        {
-          headers: {
-            Authorization: auth?.token,
-          },
-        }
-      );
+      const res = await axios.get(`/api/v1/auth/admin-auth`, {
+        headers: {
+          Authorization: auth?.token,
+        },
+      });
 
       if (res.data.ok) {
         setOk(true);
       } else {
         setOk(false);
       }
-
     };
     if (auth?.token) authcheck();
   }, [auth?.token]);

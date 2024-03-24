@@ -17,25 +17,20 @@ const Login = () => {
     e.preventDefault(); //to prevent refresh after submitting the form we use this function
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/api/v1/auth/login`,
-        {
-          email,
-          password,
-        }
-      );
+      const res = await axios.post(`/api/v1/auth/login`, {
+        email,
+        password,
+      });
       console.log(res.data);
       if (res && res.data.success) {
         //res.data.success is from the backend we are seing if it is succesfully reached the backend
         toast.success(res.data && res.data.message);
         // toast.success("Sucessfully Register now please login");
-        
+
         setAuth({
           ...auth,
           user: res.data.user,
           token: res.data.token,
-         
-          
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
         navigate("/");

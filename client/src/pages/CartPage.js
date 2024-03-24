@@ -33,9 +33,7 @@ const CartPage = () => {
   //get payment gateway token
   const getToken = async () => {
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/products/braintree/token`
-      );
+      const { data } = await axios.get(`/api/v1/products/braintree/token`);
       setClientToken(data?.clientToken);
     } catch (error) {
       console.log(error);
@@ -70,7 +68,7 @@ const CartPage = () => {
                 <div className="row m-2 mb-3 card flex-row">
                   <div className="col-md-4">
                     <img
-                      src={`${process.env.REACT_APP_API}/api/v1/products/get-product-photo/${p._id}`}
+                      src={`/api/v1/products/get-product-photo/${p._id}`}
                       className="card-img-top"
                       alt={p.name}
                       width={"100px"}

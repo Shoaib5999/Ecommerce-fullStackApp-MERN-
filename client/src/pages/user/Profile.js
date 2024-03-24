@@ -32,7 +32,7 @@ const Profile = () => {
 
     try {
       const res = await axios.put(
-        `${process.env.REACT_APP_API}/api/v1/auth/profile`,
+        `/api/v1/auth/profile`,
         {
           name,
           email,

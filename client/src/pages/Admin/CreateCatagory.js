@@ -16,7 +16,7 @@ const CreateCatagory = () => {
     e.preventDefault();
     try {
       const { data } = await axios.put(
-        `${process.env.REACT_APP_API}/api/v1/category/create-category`,
+        `/api/v1/category/create-category`,
         { name },
         {
           headers: {
@@ -38,9 +38,7 @@ const CreateCatagory = () => {
   };
   const getAllCategories = async () => {
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/category/get-category`
-      );
+      const { data } = await axios.get(`/api/v1/category/get-category`);
       // console.log(data.category[0])
       if (data?.success) {
         setCategories(data.category);
@@ -64,14 +62,11 @@ const CreateCatagory = () => {
   const deleteCategory = async (id) => {
     console.log("id is ", id);
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API}/api/v1/category/delete-category/${id}`,
-        {
-          headers: {
-            Authorization: `${auth.token}`,
-          },
-        }
-      );
+      await axios.delete(`/api/v1/category/delete-category/${id}`, {
+        headers: {
+          Authorization: `${auth.token}`,
+        },
+      });
       toast.success("Deleted Sucessfully");
       getAllCategories();
     } catch (error) {
@@ -91,7 +86,7 @@ const CreateCatagory = () => {
     e.preventDefault();
     try {
       await axios.put(
-        `${process.env.REACT_APP_API}/api/v1/category/update-category/${id}`,
+        `/api/v1/category/update-category/${id}`,
         {
           name: inputValue,
         },

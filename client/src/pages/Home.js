@@ -26,9 +26,7 @@ function Home() {
 
   const getAllCategories = async () => {
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/category/get-category`
-      );
+      const { data } = await axios.get(`/api/v1/category/get-category`);
 
       if (data?.success) {
         setCategories(data.category);
@@ -42,10 +40,9 @@ function Home() {
   const getAllProducts = async () => {
     try {
       // const { data } = await axios.get(
-      //   `${process.env.REACT_APP_API}/api/v1/products/get-products`
       // );
       const { data } = await axios.post(
-        `${process.env.REACT_APP_API}/api/v1/products/get-products-per-page/${page}`,
+        `/api/v1/products/get-products-per-page/${page}`,
         { checked }
       );
 
@@ -59,7 +56,7 @@ function Home() {
     }
   };
   // const getFilteredProducts = async()=>{
-  //   const {data} = await axios.post(`${process.env.REACT_APP_API}/api/v1/products/get-filter-products-per-page/${page}`,{checked})
+  //   const {data} = await axios.post(`/api/v1/products/get-filter-products-per-page/${page}`,{checked})
   // setProducts(data.products)
 
   // console.log(data)
@@ -117,7 +114,7 @@ function Home() {
                   key={p._id}
                 >
                   <img
-                    src={`${process.env.REACT_APP_API}/api/v1/products/get-product-photo/${p._id}`}
+                    src={`/api/v1/products/get-product-photo/${p._id}`}
                     className="card-img-top"
                     alt={p.name}
                   />
