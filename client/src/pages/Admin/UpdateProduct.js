@@ -56,7 +56,7 @@ const UpdateProduct = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
+      toast.error("Something went wrong in getting catgeory");
     }
   };
 
@@ -98,10 +98,11 @@ const UpdateProduct = () => {
       );
 
       if (data?.success) {
-        toast.error(data?.message);
+        toast
+          .success(data?.message)
+          .then(navigate("/dashboard/admin/products"));
       } else {
-        toast.success("Product Updated Successfully");
-        navigate("/dashboard/admin/products");
+        toast.error("Product Updated Successfully");
       }
     } catch (error) {
       console.log(error);
@@ -244,7 +245,10 @@ const UpdateProduct = () => {
                 </button>
               </div>
               <div className="mb-3">
-                <button className="btn btn-danger" onClick={handleDelete}>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleDelete()}
+                >
                   DELETE PRODUCT
                 </button>
               </div>

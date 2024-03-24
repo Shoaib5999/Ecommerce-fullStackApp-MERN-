@@ -29,7 +29,7 @@ router.get("/get-products", getProductController);
 router.get("/get-product/:slug", getSingleProduct);
 router.get("/get-product-photo/:pid", productPhotoController);
 router.put(
-  "/update-product/:pid",
+  "/update-product/:slug",
   requireSignIn,
   isAdmin,
   formidableMiddleware(),

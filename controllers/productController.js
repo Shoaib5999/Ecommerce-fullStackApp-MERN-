@@ -126,6 +126,7 @@ export const updateProductController = async (req, res) => {
   try {
     const { name, slug, description, price, category, quantity, shipping } =
       req.fields;
+    const { photo } = req.files;
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name Is Required" });
@@ -138,11 +139,18 @@ export const updateProductController = async (req, res) => {
       case !quantity:
         return res.status(500).send({ error: "Quantity Is Required" });
     }
-    const product = await productModel
-      .findByIdAndUpdate(req.params.pid, { ...req.fields, slug: slugify(name) })
-      .select("-photo");
-    console.log(product);
+    const product = await productModel.findOneAndUpdate(
+      { slug: req.params.slug },
+      { ...req.fields, slug: slugify(name) }
+    );
+
+    if (photo) {
+      product.photo.data = fs.readFileSync(photo.path);
+      product.photo.contentType = photo.type;
+    }
+
     await product.save();
+    console.log(product);
     res.status(200).send({
       success: true,
       message: "Product Updated Successfully",
