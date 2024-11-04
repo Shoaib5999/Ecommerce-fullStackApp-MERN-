@@ -1,7 +1,3 @@
-Certainly! Here’s an updated version of your README that includes details about the admin dashboard, highlighting its functionalities and how it supports the management of the e-commerce platform:
-
----
-
 # E-Commerce Platform
 
 A comprehensive e-commerce platform that offers a seamless shopping experience for users and powerful management tools for administrators. This project includes essential e-commerce features, an intuitive admin dashboard, and advanced tools for product management, secure payments, and real-time analytics.
