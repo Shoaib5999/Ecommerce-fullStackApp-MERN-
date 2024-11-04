@@ -9,6 +9,11 @@ import { Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth";
 const { Option } = Select;
+//Cloudinary
+// import { Cloudinary } from "@cloudinary/url-gen";
+// import { auto } from "@cloudinary/url-gen/actions/resize";
+// import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
+// import { AdvancedImage } from "@cloudinary/react";
 
 const CreateProduct = () => {
   const navigate = useNavigate();

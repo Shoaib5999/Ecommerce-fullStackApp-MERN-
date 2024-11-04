@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Layout from "../components/Layout/Layout";
 import { useSearch } from "../context/search";
+import { FaStar } from "react-icons/fa";
+
 const SearchProducts = () => {
   const [products, setProducts] = useState();
   const [loading, setLoading] = useState(true);
@@ -40,10 +42,21 @@ const SearchProducts = () => {
                 key={p._id}
               >
                 <img
-                  src={`/api/v1/products/get-product-photo/${p._id}`}
+                  // src={`/api/v1/products/get-product-photo/${p._id}`}
+                  src={p.photoUrl}
                   className="card-img-top"
-                  alt={p.name}
+                  alt={"network error"}
                 />
+                {p.featured ? (
+                  <div className="d-flex justify-content-end align-items-center p-2">
+                    <span className="badge bg-warning text-dark d-flex align-items-center px-2 py-1">
+                      <FaStar color="green" size={12} className="me-1" />
+                      Featured
+                    </span>
+                  </div>
+                ) : (
+                  <></>
+                )}
                 <div className="card-body">
                   <h5 className="card-title">{p.name}</h5>
                   <p className="card-text">

@@ -29,9 +29,10 @@ const ProductDetails = () => {
             key={p._id}
           >
             <img
-              src={`/api/v1/products/get-product-photo/${p._id}`}
+              // src={`/api/v1/products/get-product-photo/${p._id}`}
+              src={p.photoUrl}
               className="card-img-top"
-              alt={p.name}
+              alt={"network issue"}
               style={{ marginLeft: "0px", width: "48rem", margin: "1em" }}
             />
             <div>

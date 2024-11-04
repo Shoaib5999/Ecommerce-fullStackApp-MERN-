@@ -3,7 +3,7 @@ import slugify from "slugify";
 import fs from "fs";
 import braintree from "braintree";
 import orderModel from "../models/orderModel.js";
-
+import cloudinary from "../middlewares/cloudinary.js";
 //@Payment Gateway
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
@@ -12,11 +12,13 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: "sandbox_private_key_here",
 });
 
-export const createProductController = async (req, res) => {
+export const createProductController1 = async (req, res) => {
   try {
     const { name, slug, description, price, category, quantity, shipping } =
       req.fields;
     const { photo } = req.files;
+
+    // Validate required fields
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name Is Required" });
@@ -33,12 +35,23 @@ export const createProductController = async (req, res) => {
           .status(500)
           .send({ error: "Photo Is Required And Should Be <1mb" });
     }
+
+    // Create product with fields only (photo will be added after Cloudinary upload)
     const products = new productModel({ ...req.fields, slug: slugify(name) });
+
     if (photo) {
-      products.photo.data = fs.readFileSync(photo.path);
-      products.photo.contentType = photo.type;
+      // Upload photo to Cloudinary
+      const result = await cloudinary.uploader.upload(photo.path, {
+        folder: "ProductsImages",
+      });
+      // Set the Cloudinary URL as the product's photo field
+      products.photoUrl = result.secure_url;
     }
+
+    // Save the product to the database
     await products.save();
+
+    // Send the success response
     res.status(200).send({
       success: true,
       message: "Product Created Successfully",
@@ -49,7 +62,95 @@ export const createProductController = async (req, res) => {
     return res.status(500).send({
       success: false,
       message: "Error In Creating Product",
-      error: error,
+      error: error.message,
+    });
+  }
+};
+
+//To bulk upload products in json form
+
+export const createProductController = async (req, res) => {
+  try {
+    const products = [
+      {
+        name: "Paracetamol 500mg",
+        slug: "paracetamol-500mg",
+        description: "A common pain relief and fever reducer.",
+        price: 50,
+        category: "65d2e2b6940b49d1dbe41a56",
+        quantity: 100,
+        photoUrl:
+          "https://res.cloudinary.com/demo/image/upload/v1591850000/sample.jpg",
+        shipping: true,
+      },
+      {
+        name: "Vitamin C Tablets",
+        slug: "vitamin-c-tablets",
+        description: "Immune-boosting supplement with 500mg Vitamin C.",
+        price: 150,
+        category: "666687b7ab429d56df0c87ba",
+        quantity: 200,
+        photoUrl:
+          "https://res.cloudinary.com/demo/image/upload/v1591850001/sample.jpg",
+        shipping: true,
+      },
+      {
+        name: "Herbal Face Wash",
+        slug: "herbal-face-wash",
+        description: "Gentle herbal face wash for all skin types.",
+        price: 80,
+        category: "666687c2ab429d56df0c87bf",
+        quantity: 150,
+        photoUrl:
+          "https://res.cloudinary.com/demo/image/upload/v1591850002/sample.jpg",
+        shipping: true,
+      },
+      {
+        name: "Omega-3 Fish Oil",
+        slug: "omega-3-fish-oil",
+        description: "Supports heart and brain health.",
+        price: 300,
+        category: "666687b7ab429d56df0c87ba",
+        quantity: 100,
+        photoUrl:
+          "https://res.cloudinary.com/demo/image/upload/v1591850003/sample.jpg",
+        shipping: true,
+      },
+      {
+        name: "Hand Sanitizer",
+        slug: "hand-sanitizer",
+        description: "Kills 99.9% of germs instantly.",
+        price: 40,
+        category: "666687c2ab429d56df0c87bf",
+        quantity: 300,
+        photoUrl:
+          "https://res.cloudinary.com/demo/image/upload/v1591850004/sample.jpg",
+        shipping: true,
+      },
+      // Add more products as needed
+    ];
+
+    // Using `Promise.all` to handle async calls in `.map()`
+    const savedProducts = await Promise.all(
+      products.map(async (item) => {
+        const newProduct = new productModel({
+          ...item,
+          slug: slugify(item.name),
+        });
+        return await newProduct.save();
+      })
+    );
+
+    // Return a success response with the saved products
+    res.status(201).json({
+      message: "Products added successfully",
+      data: savedProducts,
+    });
+  } catch (error) {
+    console.log("Error in adding products", error);
+    res.status(500).json({
+      message: "Error in adding products",
+      error: error.message,
     });
   }
 };
@@ -60,7 +161,7 @@ export const getProductController = async (req, res) => {
     const products = await productModel
       .find()
       .select("-photo") // Exclude the 'photo' field
-      .sort({ createdAt: -1 })
+      .sort({ featured: -1, createdAt: -1 })
       .lean(); // Convert Mongoose documents to plain JavaScript objects
 
     // console.log(products);
@@ -219,7 +320,7 @@ export const getProductsPerPageController = async (req, res) => {
       .select("-photo")
       .skip((page - 1) * perPage)
       .limit(perPage)
-      .sort({ createdAt: -1 });
+      .sort({ featured: -1, createdAt: -1 });
 
     console.log("Products:", products);
 
@@ -248,7 +349,8 @@ export const searchProductsController = async (req, res) => {
           { description: { $regex: keyword, $options: "i" } },
         ],
       })
-      .select("-photo");
+      .select("-photo")
+      .sort({ featured: -1 });
 
     res.status(200).send({
       message: true,
@@ -257,6 +359,39 @@ export const searchProductsController = async (req, res) => {
   } catch (error) {
     res.status(400).send({
       message: "Error in search",
+      error,
+    });
+  }
+};
+
+//featured products api function
+export const toggleFeaturedProduct = async (req, res) => {
+  try {
+    const id = req.params.id;
+    // Find the product by ID
+    const product = await productModel.findOne({ productId: id });
+
+    // Check if the product exists
+    if (!product) {
+      return res.status(404).send({
+        message: "Product not found",
+      });
+    }
+
+    // Toggle the 'featured' field
+    product.featured = !product.featured;
+
+    // Save the updated product
+    await product.save();
+
+    // Send a success response
+    res.status(200).send({
+      message: "Featured status toggled successfully",
+      product,
+    });
+  } catch (error) {
+    res.status(400).send({
+      message: "Error in toggling featured product",
       error,
     });
   }

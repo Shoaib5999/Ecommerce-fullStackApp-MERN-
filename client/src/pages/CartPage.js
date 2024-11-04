@@ -67,12 +67,18 @@ const CartPage = () => {
               {cart?.map((p) => (
                 <div className="row m-2 mb-3 card flex-row">
                   <div className="col-md-4">
-                    <img
+                    {/* <img
                       src={`/api/v1/products/get-product-photo/${p._id}`}
                       className="card-img-top"
                       alt={p.name}
                       width={"100px"}
                       // height={"100px"}
+                    /> */}
+                    <img
+                      src={p.photoUrl}
+                      className="card-img-top"
+                      alt="Network error"
+                      width={"100px"}
                     />
                   </div>
                   <div className="col-md-8">
