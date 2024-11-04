@@ -65,14 +65,17 @@ The admin dashboard is a powerful interface that allows administrators to manage
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/yourrepository.git
-   cd yourrepository
+   git clone https://github.com/Shoaib5999/Ecommerce-fullStackApp-MERN.git
+   cd Ecommerce-fullStackApp-MERN
    ```
 
 2. **Install dependencies**:
 
    ```bash
    npm install
+   cd client
+   npm install
+   cd ..
    ```
 
 3. **Set up Environment Variables**:
