@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext } from "react";
 //first step is to createContext()
-const AuthContext = createContext(); //this always returns a object
+const AuthContext = createContext(); //this always returns a object and works as a componet
 
 const AuthProvider = ({ children }) => {
   //this AuthProvider should alwaays be on top level

@@ -22,7 +22,6 @@ import SearchProducts from "./pages/SearchProducts";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 // import CartPage from "./pages/CartPage";
-
 function App() {
   return (
     <>
