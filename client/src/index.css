@@ -1,103 +1,545 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
-*{
-    margin: 0;
-    padding: 0;
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* =========================================================
+   Global Theme (Responsive + Cleaner UI)
+   - Works alongside Bootstrap classes already used in client
+   ========================================================= */
+
+/* ---------- CSS Reset / Base ---------- */
+:root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --surface-2: #f1f3f9;
+    --text: #0f172a; /* slate-900 */
+    --muted: #64748b; /* slate-500 */
+    --border: #e2e8f0; /* slate-200 */
+
+    --primary: #2563eb; /* blue-600 */
+    --primary-700: #1d4ed8;
+    --accent: #f59e0b; /* amber-500 */
+
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+
+    --radius: 14px;
+    --radius-sm: 10px;
+
+    --container-max: 1200px;
+
+    --focus: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
-/* font-family: 'Poppins', sans-serif; */
-/* font-family: 'Playfair Display', serif; */
-.navbar{
-    font-family: 'Poppins', sans-serif;
-    font-size: 17px;
-    line-height: 26px; 
-    text-transform: uppercase;
-    box-shadow: 0 8px 6px -6px grey;
+html {
+    font-size: 16px;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
 }
-.nav-link{
-    font-weight: 300 !important;
-}
-.active{
-    border-bottom: 2px solid black;
-}
-.navbar-brand{
 
+body {
+    margin: 0;
+    padding: 0;
+    font-family:
+        "Poppins",
+        system-ui,
+        -apple-system,
+        Segoe UI,
+        Roboto,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji";
+    color: var(--text);
+    background:
+        radial-gradient(
+            1200px 500px at 10% -10%,
+            rgba(37, 99, 235, 0.12),
+            transparent 55%
+        ),
+        radial-gradient(
+            900px 450px at 90% 0%,
+            rgba(245, 158, 11, 0.1),
+            transparent 55%
+        ),
+        var(--bg);
+    line-height: 1.5;
 }
-.navbar-logo{
-    font-size: 30px;
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
-/* ---------------------Page not found---------------------- */
-.pnf {
-    display: flex;
-    min-height: 65vh;
-    flex-direction: column;
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+::selection {
+    background: rgba(37, 99, 235, 0.18);
+}
+
+/* ---------- Utilities ---------- */
+.container-max {
+    width: min(var(--container-max), calc(100% - 2rem));
+    margin-inline: auto;
+}
+
+.surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.text-muted {
+    color: var(--muted) !important;
+}
+
+.product-link {
+    text-decoration: none !important;
+    color: var(--text) !important;
+}
+
+.product-link:hover {
+    color: var(--primary) !important;
+}
+
+/* ---------- Focus styles (accessibility) ---------- */
+:where(a, button, input, select, textarea, .btn, .nav-link):focus-visible {
+    outline: none;
+    box-shadow: var(--focus) !important;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   Navbar
+   ========================================================= */
+.navbar {
+    font-family: "Poppins", sans-serif;
+    font-size: 15px;
+    line-height: 22px;
+    text-transform: uppercase;
+
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.navbar .container-fluid {
+    max-width: var(--container-max);
+}
+
+.navbar-brand {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-  }
-  
-  .pnf-title {
-    font-size: 100px;
+    gap: 0.6rem;
     font-weight: 700;
-  }
-  
-  .pnf-heading {
-    font-weight: normal;
-  }
-  
-  .pnf-btn {
-    color: black;
-    border: 1px solid black;
-    text-decoration: none;
-    padding: 10px;
-    margin-top: 10px;
-  }
-  .pnf-btn:hover {
-    background-color: black;
-    color: white;
-  }
-/* ------------------footer section---------------------- */
-.footer{
-    background-image: linear-gradient(rgb(34, 33, 33), #131212);
-    height: 20vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    letter-spacing: 0.2px;
+    color: var(--text) !important;
 }
-.footer-link{
-    color: white;
-    text-decoration: none;
-    margin: 0 5px 0 5   px;
+
+.navbar-logo {
+    font-size: 28px;
+    color: var(--primary);
 }
-.footer-link:hover{
-    border-bottom: 1px solid white;
+
+.nav-link {
+    font-weight: 500 !important;
+    color: rgba(15, 23, 42, 0.78) !important;
+    padding: 0.55rem 0.75rem !important;
+    border-radius: 12px;
+    transition:
+        background 160ms ease,
+        color 160ms ease;
 }
-/* ------------------------Contact form------------------- */
+
+.nav-link:hover {
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--text) !important;
+}
+
+.nav-link.active,
+.active {
+    border-bottom: none !important;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--primary-700) !important;
+}
+
+/* Make navbar collapse area breathe on small screens */
+@media (max-width: 991.98px) {
+    .navbar .navbar-collapse {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+}
+
+/* Dropdown polish (Bootstrap dropdown) */
+.dropdown-menu {
+    border-radius: 14px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow) !important;
+    padding: 0.5rem !important;
+}
+
+.dropdown-item {
+    border-radius: 10px !important;
+    padding: 0.55rem 0.75rem !important;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background: rgba(37, 99, 235, 0.1) !important;
+}
+
+/* =========================================================
+   Buttons (Enhance Bootstrap look without breaking it)
+   ========================================================= */
+.btn {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px;
+    transition:
+        transform 120ms ease,
+        box-shadow 120ms ease,
+        filter 120ms ease;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-700) !important;
+    border-color: var(--primary-700) !important;
+    filter: brightness(1.02);
+}
+
+.btn-secondary {
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+}
+
+.btn-secondary:hover {
+    background-color: #111c33 !important;
+    border-color: #111c33 !important;
+}
+
+/* =========================================================
+   Home / Products Grid + Cards
+   - Your Home page uses Bootstrap's `.card` and flex wrap.
+   - These styles make them look more modern and responsive.
+   ========================================================= */
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Add spacing so content doesn't feel glued to edges */
+main {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+/* Filter sidebar */
+.col-md-3 {
+    padding: 0.75rem;
+}
+
+.col-md-3 > h4 {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.2px;
+}
+
+.form-check {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.7rem 0.9rem;
+    margin: 0.6rem 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+    color: rgba(15, 23, 42, 0.88);
+    font-weight: 500;
+}
+
+/* Products area */
+.col-md-9 {
+    padding: 0.75rem;
+}
+
+.col-md-9 > h1 {
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    color: var(--text);
+}
+
+/* Make product wrapper behave like a responsive grid */
+.col-md-9 .d-flex.flex-wrap {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: stretch;
+}
+
+/* Responsive grid breakpoints */
+@media (max-width: 1199.98px) {
+    .col-md-9 .d-flex.flex-wrap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .col-md-9 .d-flex.flex-wrap {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card polish */
+.card {
+    width: auto !important; /* override inline width from Home.js */
+    margin: 0 !important; /* override inline margin from Home.js */
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: var(--shadow-sm);
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        border-color 160ms ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+    border-color: rgba(37, 99, 235, 0.28) !important;
+}
+
+.card-img-top {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: var(--surface-2);
+}
+
+.card-body {
+    padding: 1rem !important;
+}
+
+.card-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem !important;
+}
+
+.card-text {
+    color: rgba(15, 23, 42, 0.78);
+    margin-bottom: 0.5rem !important;
+}
+
+.card-text:last-of-type {
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* Card actions */
+.card-body .d-flex {
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.card-body .btn {
+    flex: 1 1 140px;
+    min-height: 42px;
+}
+
+/* Badge styling used for Featured */
+.badge.bg-warning {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #7a4b00 !important;
+    border-radius: 999px !important;
+}
+
+/* Pagination area */
+.d-flex.justify-content-center.align-items-center.gap-2.mt-3.p-2 {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   Category Buttons (if used elsewhere)
+   ========================================================= */
+.cat-btn {
+    padding: 18px 16px;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: var(--radius) !important;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.75);
+    transition:
+        background 160ms ease,
+        transform 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.cat-btn:hover {
+    background: rgba(37, 99, 235, 0.08);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+}
+
+/* =========================================================
+   Contact / Auth / Not Found
+   ========================================================= */
 .contactus {
     margin: 0;
     padding: 0;
-    height: 70vh;
-    display: flex;
+    min-height: 70vh;
+    display: grid;
+    place-items: center;
+}
+
+/* Page Not Found */
+.pnf {
+    display: grid;
+    min-height: 65vh;
+    place-items: center;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.pnf-title {
+    font-size: clamp(56px, 8vw, 110px);
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.pnf-heading {
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.pnf-btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  /* ==================== */
-  .product-link {
-    text-decoration: none !important;
-    color: black !important;
-  }
-  
-  .cat-btn {
-    padding: 40px 0px;
-    font-size: 24px;
-    text-transform: uppercase;
-  }
-  .cat-btn:hover {
-    background-color: #434343;
-    color: white;
-  }
-  .product-link{
-    text-decoration: none !important;
-    color: black;
-  }
+    gap: 0.5rem;
+
+    color: var(--text);
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+
+    padding: 0.75rem 1rem;
+    margin-top: 12px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    transition:
+        background 160ms ease,
+        transform 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.pnf-btn:hover {
+    background: rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer {
+    background: linear-gradient(135deg, #0b1220, #0f172a);
+    min-height: 140px;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+
+    border-top: 1px solid rgba(226, 232, 240, 0.15);
+}
+
+.footer h4 {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.footer-links {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.86);
+    text-decoration: none;
+    padding: 0.25rem 0.4rem;
+    border-radius: 10px;
+    transition:
+        background 160ms ease,
+        color 160ms ease;
+}
+
+.footer-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* =========================================================
+   Small-screen spacing tweaks
+   ========================================================= */
+@media (max-width: 575.98px) {
+    main {
+        padding-top: 0.75rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .navbar-brand {
+        font-size: 0.95rem;
+    }
+
+    .navbar-logo {
+        font-size: 24px;
+    }
+}
