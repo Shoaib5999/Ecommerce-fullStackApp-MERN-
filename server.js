@@ -1,61 +1,96 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { existsSync } from "fs";
+
 import { connectDB } from "./config/db.js";
+
 import authRoute from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import cors from "cors";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 
-// Configure environment variables
-dotenv.config();
-
-const clientBuildPath = join(__dirname, "./client/build");
-const hasClientBuild = existsSync(clientBuildPath);
+/**
+ * In Vercel serverless, you must not call `app.listen`.
+ * Instead, export the Express `app` and let the platform handle requests.
+ *
+ * Also ensure DB connection is established per cold start (and reused on warm
+ * invocations via caching in `connectDB`).
+ */
+let dbReadyPromise = null;
+const ensureDbReady = async () => {
+  if (!dbReadyPromise) {
+    dbReadyPromise = connectDB();
+  }
+  return dbReadyPromise;
+};
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
+app.use(express.json({ limit: "2mb" }));
 app.use(morgan("dev"));
 
-// Only serve React build in production (when client/build exists)
+// Serve React build when present (Vercel will primarily serve static output,
+// but this keeps parity for other hosts too)
+const clientBuildPath = join(__dirname, "./client/build");
+const hasClientBuild = existsSync(clientBuildPath);
 if (hasClientBuild) {
   app.use(express.static(clientBuildPath));
 }
+
+// Make sure DB is connected for all API requests
+app.use("/api", async (req, res, next) => {
+  try {
+    await ensureDbReady();
+    next();
+  } catch (err) {
+    console.error("MongoDB connection error:", err?.message || err);
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed",
+    });
+  }
+});
 
 // Routes
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/products", productRoutes);
 
-// Serve index.html only when build exists; otherwise 404 for non-API routes
-app.use("*", function (req, res) {
-  if (hasClientBuild) {
-    res.sendFile(join(clientBuildPath, "index.html"));
-  } else {
-    res.status(404).json({
-      message:
-        "API server running. In development, use the React app at http://localhost:3000",
-    });
+// Health check (useful for Vercel / debugging)
+app.get("/api/health", async (req, res) => {
+  try {
+    await ensureDbReady();
+    res.status(200).json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false });
   }
 });
 
-connectDB()
-  .then(() => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Server not started: MongoDB connection failed.", err.message);
-    process.exit(1);
+// SPA fallback: serve React index.html for non-API routes if build exists.
+// Otherwise provide a simple message.
+app.use("*", (req, res) => {
+  if (hasClientBuild) {
+    return res.sendFile(join(clientBuildPath, "index.html"));
+  }
+  return res.status(404).json({
+    message:
+      "API server running. React build not found. In development, run the client separately.",
   });
+});
+
+export default app;
