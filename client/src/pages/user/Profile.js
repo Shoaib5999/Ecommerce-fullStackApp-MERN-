@@ -25,7 +25,7 @@ const Profile = () => {
       setAddress(address);
       setPassword(password);
     }
-  }, [auth?.user]);
+  }, [auth]);
 
   const handleSubmit = async (e) => {
     e.preventDefault(); //to prevent refresh after submitting the form we use this function
@@ -44,7 +44,7 @@ const Profile = () => {
           headers: {
             Authorization: `${auth.token}`,
           },
-        }
+        },
       );
       console.log(res.data);
       if (res && res.data.success) {
