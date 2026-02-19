@@ -71,85 +71,56 @@ export const createProductController1 = async (req, res) => {
 
 export const createProductController = async (req, res) => {
   try {
-    const products = [
-      {
-        name: "Paracetamol 500mg",
-        slug: "paracetamol-500mg",
-        description: "A common pain relief and fever reducer.",
-        price: 50,
-        category: "65d2e2b6940b49d1dbe41a56",
-        quantity: 100,
-        photoUrl:
-          "https://res.cloudinary.com/demo/image/upload/v1591850000/sample.jpg",
-        shipping: true,
-      },
-      {
-        name: "Vitamin C Tablets",
-        slug: "vitamin-c-tablets",
-        description: "Immune-boosting supplement with 500mg Vitamin C.",
-        price: 150,
-        category: "666687b7ab429d56df0c87ba",
-        quantity: 200,
-        photoUrl:
-          "https://res.cloudinary.com/demo/image/upload/v1591850001/sample.jpg",
-        shipping: true,
-      },
-      {
-        name: "Herbal Face Wash",
-        slug: "herbal-face-wash",
-        description: "Gentle herbal face wash for all skin types.",
-        price: 80,
-        category: "666687c2ab429d56df0c87bf",
-        quantity: 150,
-        photoUrl:
-          "https://res.cloudinary.com/demo/image/upload/v1591850002/sample.jpg",
-        shipping: true,
-      },
-      {
-        name: "Omega-3 Fish Oil",
-        slug: "omega-3-fish-oil",
-        description: "Supports heart and brain health.",
-        price: 300,
-        category: "666687b7ab429d56df0c87ba",
-        quantity: 100,
-        photoUrl:
-          "https://res.cloudinary.com/demo/image/upload/v1591850003/sample.jpg",
-        shipping: true,
-      },
-      {
-        name: "Hand Sanitizer",
-        slug: "hand-sanitizer",
-        description: "Kills 99.9% of germs instantly.",
-        price: 40,
-        category: "666687c2ab429d56df0c87bf",
-        quantity: 300,
-        photoUrl:
-          "https://res.cloudinary.com/demo/image/upload/v1591850004/sample.jpg",
-        shipping: true,
-      },
-      // Add more products as needed
-    ];
+    const { name, description, price, category, quantity, shipping } =
+      req.fields || {};
+    const photo = req.files?.photo;
 
-    // Using `Promise.all` to handle async calls in `.map()`
-    const savedProducts = await Promise.all(
-      products.map(async (item) => {
-        const newProduct = new productModel({
-          ...item,
-          slug: slugify(item.name),
-        });
-        return await newProduct.save();
-      })
-    );
+    if (
+      !name ||
+      !description ||
+      !price ||
+      !category ||
+      !quantity
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required (name, description, price, category, quantity)",
+      });
+    }
+    if (!photo || photo.size > 3000000) {
+      return res.status(400).json({
+        success: false,
+        message: "Photo is required and should be less than 3MB",
+      });
+    }
 
-    // Return a success response with the saved products
+    const product = new productModel({
+      name,
+      slug: slugify(name),
+      description,
+      price: Number(price),
+      category,
+      quantity: Number(quantity),
+      shipping: shipping === "1" || shipping === true,
+    });
+
+    const result = await cloudinary.uploader.upload(photo.path, {
+      folder: "ProductsImages",
+    });
+    product.photoUrl = result.secure_url;
+
+    await product.save();
+
     res.status(201).json({
-      message: "Products added successfully",
-      data: savedProducts,
+      success: true,
+      message: "Product created successfully",
+      product,
     });
   } catch (error) {
-    console.log("Error in adding products", error);
+    console.log("Error in adding product", error);
     res.status(500).json({
-      message: "Error in adding products",
+      success: false,
+      message: "Error in adding product",
       error: error.message,
     });
   }
@@ -302,7 +273,7 @@ export const getProductCountController = async (req, res) => {
 };
 //get product perpage
 export const getProductsPerPageController = async (req, res) => {
-  const perPage = 2;
+  const perPage = 10;
   const { checked, search } = req.body;
   const page = parseInt(req.params.page) || 1;
 
@@ -315,19 +286,28 @@ export const getProductsPerPageController = async (req, res) => {
         : {};
     console.log("Generated query:", query);
 
-    const products = await productModel
-      .find(query)
-      .select("-photo")
-      .skip((page - 1) * perPage)
-      .limit(perPage)
-      .sort({ featured: -1, createdAt: -1 });
+    const [products, totalCount] = await Promise.all([
+      productModel
+        .find(query)
+        .select("-photo")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .sort({ featured: -1, createdAt: -1 }),
+      productModel.countDocuments(query),
+    ]);
 
-    console.log("Products:", products);
+    const hasNextPage = page * perPage < totalCount;
+    const hasPreviousPage = page > 1;
 
     res.status(200).send({
       success: true,
       message: "Filtered Products Per Page",
       products,
+      totalCount,
+      perPage,
+      page,
+      hasNextPage,
+      hasPreviousPage,
     });
   } catch (error) {
     console.error("Error:", error);
@@ -396,6 +376,29 @@ export const toggleFeaturedProduct = async (req, res) => {
     });
   }
 };
+//search products suggestions controller
+export const searchProductsSuggestionsController = async (req, res) => {
+  try{
+    const { keyword } = req.params;
+    const products = await productModel.find({
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    });
+    res.status(200).send({
+      sucess:true,
+      message: "Search products suggestions",
+      products,
+    });
+  }catch(error){
+    console.log(error);
+    res.status(400).send({
+      message: "Error in search products suggestions",
+      error,
+    });
+  }
+}
 
 //payment gateway api
 //token

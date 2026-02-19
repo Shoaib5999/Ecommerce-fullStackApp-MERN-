@@ -22,8 +22,8 @@ const router = express.Router();
 router.post(
   "/create-product",
   formidableMiddleware(),
-  // requireSignIn,
-  // isAdmin,
+  requireSignIn,
+  isAdmin,
   createProductController
 );
 router.get("/get-products", getProductController);

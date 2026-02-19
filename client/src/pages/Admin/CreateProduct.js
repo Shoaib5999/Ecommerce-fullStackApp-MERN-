@@ -49,6 +49,10 @@ const CreateProduct = () => {
   //create product function
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (!name || !description || !price || !quantity || !category || !photo) {
+      toast.error("All fields including photo are required");
+      return;
+    }
     try {
       const productData = new FormData();
       productData.append("name", name);
@@ -57,7 +61,10 @@ const CreateProduct = () => {
       productData.append("quantity", quantity);
       productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.post(
+      if (shipping !== undefined && shipping !== "") {
+        productData.append("shipping", shipping);
+      }
+      const { data } = await axios.post(
         `/api/v1/products/create-product`,
         productData,
         {
@@ -67,14 +74,16 @@ const CreateProduct = () => {
         }
       );
       if (data?.success) {
-        toast.error(data?.message);
-      } else {
-        toast.success("Product Created Successfully");
+        toast.success(data?.message || "Product Created Successfully");
         navigate("/dashboard/admin/products");
+      } else {
+        toast.error(data?.message || "Failed to create product");
       }
     } catch (error) {
       console.log(error);
-      toast.error("something went wrong");
+      const msg =
+        error.response?.data?.message || error.response?.data?.error || "Something went wrong";
+      toast.error(msg);
     }
   };
 

@@ -15,7 +15,7 @@ const CreateCatagory = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put(
+      const { data } = await axios.post(
         `/api/v1/category/create-category`,
         { name },
         {
@@ -34,6 +34,10 @@ const CreateCatagory = () => {
     } catch (error) {
       console.log(error);
       toast.error("Error In Input Form");
+    }finally{
+      setShowForm(false);
+      setName("");
+      setInputValue("");
     }
   };
   const getAllCategories = async () => {
@@ -71,7 +75,7 @@ const CreateCatagory = () => {
       getAllCategories();
     } catch (error) {
       console.log(error);
-      toast.error("Could Not Delete");
+      toast.error(error.response.data.message);
     }
   };
   const handleInputChange = (e) => {
@@ -101,7 +105,11 @@ const CreateCatagory = () => {
       getAllCategories();
     } catch (error) {
       console.log(error);
-      toast.error("Could Not Delete");
+      toast.error(error.response.data.message);
+    }
+    finally{
+     setShowForm(false);
+
     }
   };
   useEffect(() => {

@@ -20,6 +20,7 @@ export const registerController = async (req, res) => {
     }
 
     const hashedPassword = await hashPassword(password);
+    console.log("hashedPassword", hashedPassword);
 
     const user = await new User({
       name,
