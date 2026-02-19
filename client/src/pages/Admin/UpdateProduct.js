@@ -21,18 +21,17 @@ const UpdateProduct = () => {
   const [quantity, setQuantity] = useState("");
   const [shipping, setShipping] = useState("");
   const [photo, setPhoto] = useState("");
-  const [id, setId] = useState("");
 
   //get single product
   const getSingleProduct = async () => {
     try {
       const { data } = await axios.get(
-        `/api/v1/products/get-product/${p_id}`
+        `/api/v1/products/get-product/${p_id}`,
         // `/api/v1/product/get-product/${params.slug}`
       );
       //   console.log(data)
       setName(data.products.name);
-      setId(data.products._id);
+      // setId(data.products._id);
       setDescription(data.products.description);
       setPrice(data.products.price);
       setPrice(data.products.price);
@@ -66,9 +65,7 @@ const UpdateProduct = () => {
 
   //create product function
   const handleUpdate = async (e) => {
-    {
-      console.log(auth.token);
-    }
+    console.log(auth.token);
 
     e.preventDefault();
     try {
@@ -94,7 +91,7 @@ const UpdateProduct = () => {
             Authorization: `${auth.token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (data?.success) {

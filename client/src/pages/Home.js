@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
-import { useAuth } from "../context/auth";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/cart";
 import { FaStar } from "react-icons/fa";
-import { useDispatch } from "react-redux";
 
 function Home() {
-  const [auth, setAuth] = useAuth();
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
-  const [selectedCat, setSelectedCat] = useState(true);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({
     hasNextPage: false,
@@ -25,11 +20,26 @@ function Home() {
   const [cart, setCart] = useCart();
   //get All Categories
   useEffect(() => {
-    // if (checked.length !== 0) {
-    //   setSelectedCat(false);
-    // }
+    const getAllProducts = async () => {
+      try {
+        const { data } = await axios.post(
+          `/api/v1/products/get-products-per-page/${page}`,
+          { checked },
+        );
+        setProducts(data?.products ?? []);
+        setPagination({
+          hasNextPage: data?.hasNextPage ?? false,
+          hasPreviousPage: data?.hasPreviousPage ?? false,
+          totalCount: data?.totalCount ?? 0,
+          page: data?.page ?? 1,
+        });
+      } catch (error) {
+        console.log(error);
+        toast.error("Something Went Wrong");
+      }
+    };
+
     getAllProducts();
-    // getFilteredProducts()
   }, [checked, page]);
 
   const getAllCategories = async () => {
@@ -45,24 +55,7 @@ function Home() {
     }
   };
 
-  const getAllProducts = async () => {
-    try {
-      const { data } = await axios.post(
-        `/api/v1/products/get-products-per-page/${page}`,
-        { checked }
-      );
-      setProducts(data?.products ?? []);
-      setPagination({
-        hasNextPage: data?.hasNextPage ?? false,
-        hasPreviousPage: data?.hasPreviousPage ?? false,
-        totalCount: data?.totalCount ?? 0,
-        page: data?.page ?? 1,
-      });
-    } catch (error) {
-      console.log(error);
-      toast.error("Something Went Wrong");
-    }
-  };
+  // NOTE: getAllProducts is inlined inside the effect to avoid exhaustive-deps issues.
   // const getFilteredProducts = async()=>{
   //   const {data} = await axios.post(`/api/v1/products/get-filter-products-per-page/${page}`,{checked})
   // setProducts(data.products)
@@ -81,11 +74,9 @@ function Home() {
   };
 
   useEffect(() => {
-    getAllProducts();
     getAllCategories();
     // getFilteredProducts()
   }, []);
-  const dispatch = useDispatch();
   return (
     <>
       <Layout title={"All Products - Best Offers"}>
@@ -158,7 +149,7 @@ function Home() {
                           setCart([...cart, p]);
                           localStorage.setItem(
                             "cart",
-                            JSON.stringify([...cart, p])
+                            JSON.stringify([...cart, p]),
                           );
                           toast.success("Added To Cart");
                         }}
@@ -173,23 +164,37 @@ function Home() {
             {products?.length === 0 && (
               <p className="text-center text-muted mt-4">No products found.</p>
             )}
-              <div className="d-flex justify-content-center align-items-center gap-2 mt-3 p-2">
-                <button
-                  className="btn btn-primary"
-                  disabled={!pagination.hasPreviousPage}
-                  onClick={() => setPage(pagination.hasPreviousPage ? pagination.page - 1 : pagination.page)}
-                >
-                  Previous
-                </button>
-                <span className="align-self-center px-2">Page {pagination.page}</span>
-                <button
-                  className="btn btn-primary"
-                  disabled={!pagination.hasNextPage}
-                  onClick={() => setPage(pagination.hasNextPage ? pagination.page + 1 : pagination.page)}
-                >
-                  Next
-                </button>
-              </div>
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-3 p-2">
+              <button
+                className="btn btn-primary"
+                disabled={!pagination.hasPreviousPage}
+                onClick={() =>
+                  setPage(
+                    pagination.hasPreviousPage
+                      ? pagination.page - 1
+                      : pagination.page,
+                  )
+                }
+              >
+                Previous
+              </button>
+              <span className="align-self-center px-2">
+                Page {pagination.page}
+              </span>
+              <button
+                className="btn btn-primary"
+                disabled={!pagination.hasNextPage}
+                onClick={() =>
+                  setPage(
+                    pagination.hasNextPage
+                      ? pagination.page + 1
+                      : pagination.page,
+                  )
+                }
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </Layout>

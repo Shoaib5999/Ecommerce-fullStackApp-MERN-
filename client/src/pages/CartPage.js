@@ -7,24 +7,26 @@ import DropIn from "braintree-web-drop-in-react";
 import axios from "axios";
 
 const CartPage = () => {
-  const [auth, setAuth] = useAuth();
+  const [auth] = useAuth();
   const [cart, setCart] = useCart();
   const Navigate = useNavigate();
   const [clientToken, setClientToken] = useState("");
   const [instance, setInstance] = useState("");
-  const [Loading, setLoading] = useState(false);
+
   const removeItem = (id) => {
     try {
-      let myCart = [...cart];
-      let index = myCart.findIndex((item) => item.id === id);
+      const myCart = [...cart];
+      const index = myCart.findIndex((item) => item._id === id);
+      if (index === -1) return;
       myCart.splice(index, 1);
       setCart(myCart);
       localStorage.setItem("cart", JSON.stringify(myCart));
     } catch (error) {}
   };
+
   const totalPrice = () => {
     let Total = 0;
-    cart?.map((item) => {
+    cart?.forEach((item) => {
       Total = Total + item.price;
     });
     return Total;
@@ -107,7 +109,7 @@ const CartPage = () => {
                     <h3>{auth.user.address}</h3>
                     <button
                       type="button"
-                      class="btn btn-warning"
+                      className="btn btn-warning"
                       onClick={() => {
                         Navigate("/dashboard/user/profile");
                       }}
@@ -138,7 +140,7 @@ const CartPage = () => {
                     <h3>Please Login</h3>
                     <button
                       type="button"
-                      class="btn btn-warning"
+                      className="btn btn-warning"
                       onClick={() => {
                         Navigate("/login", {
                           state: "/dashboard/shopping/cart",

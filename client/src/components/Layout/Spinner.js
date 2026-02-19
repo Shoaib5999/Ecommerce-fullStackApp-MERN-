@@ -3,16 +3,21 @@ import { useNavigate } from "react-router-dom";
 const Spinner = () => {
   const [count, setCount] = useState(5);
   const navigate = useNavigate();
+
   useEffect(() => {
+    if (count === 0) {
+      navigate("/login");
+      return;
+    }
+
     const interval = setInterval(() => {
       setCount((prevValue) => prevValue - 1);
     }, 1000);
-    count === 0 && navigate("/login");
 
     return () => {
       clearInterval(interval); //this clearInterval function will make that interval again to its previous value
     };
-  }, [count]);
+  }, [count, navigate]);
 
   return (
     <>

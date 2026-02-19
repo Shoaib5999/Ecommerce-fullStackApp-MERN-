@@ -10,7 +10,7 @@ const CreateCatagory = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [auth] = useAuth();
-  const [showForm, setShowForm] = useState(false);
+
   const [inputValue, setInputValue] = useState("");
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ const CreateCatagory = () => {
           headers: {
             Authorization: `${auth.token}`,
           },
-        }
+        },
       );
       if (data?.success) {
         toast.success("New Category Added Successfully");
@@ -34,8 +34,7 @@ const CreateCatagory = () => {
     } catch (error) {
       console.log(error);
       toast.error("Error In Input Form");
-    }finally{
-      setShowForm(false);
+    } finally {
       setName("");
       setInputValue("");
     }
@@ -54,15 +53,6 @@ const CreateCatagory = () => {
     }
   };
 
-  const updateCategory = async () => {
-    try {
-      setShowForm(!showForm);
-      <CreateCatagory></CreateCatagory>;
-    } catch (error) {
-      console.log(error);
-      toast.error("Could Not Update");
-    }
-  };
   const deleteCategory = async (id) => {
     console.log("id is ", id);
     try {
@@ -98,7 +88,7 @@ const CreateCatagory = () => {
           headers: {
             Authorization: `${auth?.token}`,
           },
-        }
+        },
       );
 
       toast.success("Category Edited Sucessfully");
@@ -106,10 +96,8 @@ const CreateCatagory = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
-    }
-    finally{
-     setShowForm(false);
-
+    } finally {
+      // no-op
     }
   };
   useEffect(() => {
