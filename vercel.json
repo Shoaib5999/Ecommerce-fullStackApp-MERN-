@@ -11,10 +11,5 @@
       "source": "/(.*)",
       "destination": "/client/build/index.html"
     }
-  ],
-  "functions": {
-    "server.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  ]
 }
