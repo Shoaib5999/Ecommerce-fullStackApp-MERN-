@@ -8,12 +8,11 @@ import mongoose from "mongoose";
  * can reuse it and you don't create a new connection per request.
  */
 
-const MONGO_URL = process.env.MONGO_URL;
-
 // Cache across hot reloads / warm invocations
 global._mongooseCache = global._mongooseCache || { conn: null, promise: null };
 
 const connectDB = async () => {
+  const MONGO_URL = process.env.MONGO_URL;
   if (!MONGO_URL) {
     throw new Error("MONGO_URL is not set in environment variables");
   }

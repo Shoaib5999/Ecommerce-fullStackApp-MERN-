@@ -12,10 +12,11 @@ import authRoute from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Load .env from project root (must run before any code that reads env)
+dotenv.config({ path: join(__dirname, ".env") });
 
 const app = express();
 
@@ -92,5 +93,14 @@ app.use("*", (req, res) => {
       "API server running. React build not found. In development, run the client separately.",
   });
 });
+
+// When running locally (not on Vercel), start the HTTP server.
+// Vercel uses api/index.js and does not call listen().
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
