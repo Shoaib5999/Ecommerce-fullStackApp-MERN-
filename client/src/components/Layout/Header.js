@@ -1,15 +1,21 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
-import { AiOutlineShoppingCart } from "react-icons/ai";
+import { AiOutlineShoppingCart, AiOutlineHeart } from "react-icons/ai";
 import { useAuth } from "../../context/auth";
 import { useLocation } from "react-router-dom";
 import Search from "./Search";
 import { useCart } from "../../context/cart";
+import { useWishlist } from "../../context/wishlist";
+import { cartCount } from "../../utils/cartUtils";
+import { wishlistCount } from "../../utils/wishlistUtils";
 
 function Header() {
   const location = useLocation();
   const [cart] = useCart();
+  const [wishlist] = useWishlist();
   const [auth, setAuth] = useAuth();
+  const totalCartCount = cartCount(cart);
+  const totalWishlistCount = wishlistCount(wishlist);
   const handleLogout = () => {
     localStorage.removeItem("auth"); // here we are doing both things removing auth from localstorage and setting auth because if we only remove from localstorage we need to refresh the page
     setAuth({
@@ -99,8 +105,15 @@ function Header() {
                 </>
               )}
               <li className="nav-item">
+                <NavLink to="/dashboard/shopping/wishlist" className="nav-link">
+                  <AiOutlineHeart className="nav-icon" /> Wishlist
+                  <span className="count-pill">{totalWishlistCount}</span>
+                </NavLink>
+              </li>
+              <li className="nav-item">
                 <NavLink to="/dashboard/shopping/cart" className="nav-link">
-                  CART[{cart?.length}]
+                  <AiOutlineShoppingCart className="nav-icon" /> Cart
+                  <span className="count-pill">{totalCartCount}</span>
                 </NavLink>
               </li>
             </ul>

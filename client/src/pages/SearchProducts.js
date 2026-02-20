@@ -6,12 +6,17 @@ import { FaStar } from "react-icons/fa";
 import { useCart } from "../context/cart";
 import { toast } from "react-toastify";
 import { fetchSearchResults } from "../store/slices/searchSlice";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import { useWishlist } from "../context/wishlist";
+import { addToCart } from "../utils/cartUtils";
+import { toggleWishlist } from "../utils/wishlistUtils";
 
 const SearchProducts = () => {
   const { keyword } = useParams();
   const dispatch = useDispatch();
   const { results, loading, error } = useSelector((state) => state.search);
   const [cart, setCart] = useCart();
+  const [wishlist, setWishlist] = useWishlist();
 
   useEffect(() => {
     if (keyword) {
@@ -45,14 +50,35 @@ const SearchProducts = () => {
                   className="card-img-top"
                   alt="product"
                 />
-                {p.featured ? (
-                  <div className="d-flex justify-content-end align-items-center p-2">
+                <div className="d-flex justify-content-between align-items-center p-2">
+                  {p.featured ? (
                     <span className="badge bg-warning text-dark d-flex align-items-center px-2 py-1">
                       <FaStar color="green" size={12} className="me-1" />
                       Featured
                     </span>
-                  </div>
-                ) : null}
+                  ) : (
+                    <span />
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-light btn-icon"
+                    onClick={() => {
+                      const updated = toggleWishlist(wishlist, p);
+                      setWishlist(updated);
+                      localStorage.setItem("wishlist", JSON.stringify(updated));
+                      const exists = wishlist.some((item) => item._id === p._id);
+                      toast.info(
+                        exists ? "Removed from wishlist" : "Saved to wishlist"
+                      );
+                    }}
+                  >
+                    {wishlist.some((item) => item._id === p._id) ? (
+                      <AiFillHeart className="text-danger" />
+                    ) : (
+                      <AiOutlineHeart />
+                    )}
+                  </button>
+                </div>
                 <div className="card-body">
                   <h5 className="card-title">{p.name}</h5>
                   <p className="card-text">
@@ -67,11 +93,9 @@ const SearchProducts = () => {
                       type="button"
                       className="btn btn-secondary ms-2"
                       onClick={() => {
-                        setCart([...cart, p]);
-                        localStorage.setItem(
-                          "cart",
-                          JSON.stringify([...cart, p])
-                        );
+                        const updated = addToCart(cart, p, 1);
+                        setCart(updated);
+                        localStorage.setItem("cart", JSON.stringify(updated));
                         toast.success("Added To Cart");
                       }}
                     >

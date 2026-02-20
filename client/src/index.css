@@ -247,6 +247,58 @@ a:hover {
     border-color: #111c33 !important;
 }
 
+.btn-outline-primary {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    color: var(--primary) !important;
+}
+
+.btn-outline-primary:hover {
+    background: rgba(37, 99, 235, 0.08) !important;
+    border-color: rgba(37, 99, 235, 0.6) !important;
+    color: var(--primary-700) !important;
+}
+
+.btn-outline-danger {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+}
+
+.btn-light {
+    border-radius: 12px !important;
+}
+
+.btn-icon {
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Navbar pills */
+.nav-icon {
+    font-size: 18px;
+    margin-right: 0.35rem;
+}
+
+.count-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.35rem;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--primary-700);
+}
+
 /* =========================================================
    Home / Products Grid + Cards
    - Your Home page uses Bootstrap's `.card` and flex wrap.
@@ -302,6 +354,10 @@ main {
     font-weight: 800;
     letter-spacing: 0.2px;
     color: var(--text);
+}
+
+.catalog-toolbar {
+    gap: 1rem;
 }
 
 /* Make product wrapper behave like a responsive grid */
@@ -380,6 +436,32 @@ main {
 .card-body .btn {
     flex: 1 1 140px;
     min-height: 42px;
+}
+
+/* Search bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: min(460px, 100%);
+    margin-left: 1rem;
+}
+
+.search-input {
+    border-radius: 999px !important;
+    padding-left: 1rem !important;
+}
+
+.search-button {
+    border-radius: 999px !important;
+    padding-inline: 1.25rem !important;
+}
+
+@media (max-width: 991.98px) {
+    .search-bar {
+        width: 100%;
+        margin: 0.75rem 0 0;
+    }
 }
 
 /* Badge styling used for Featured */
@@ -478,6 +560,112 @@ main {
     background: rgba(15, 23, 42, 0.06);
     transform: translateY(-1px);
     box-shadow: var(--shadow);
+}
+
+/* Cart and wishlist */
+.cart-item {
+    border-radius: var(--radius);
+}
+
+.cart-item-image {
+    width: 140px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: var(--surface-2);
+}
+
+.price-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--primary-700);
+    font-weight: 700;
+}
+
+.qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.qty-value {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+}
+
+.summary-total {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.sticky-summary {
+    position: sticky;
+    top: 90px;
+}
+
+.promo-box {
+    background: rgba(241, 243, 249, 0.7);
+    border: 1px dashed rgba(37, 99, 235, 0.3);
+    border-radius: 14px;
+    padding: 0.9rem;
+}
+
+.address-box {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.9rem;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Recently viewed */
+.recent-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.recent-card {
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.recent-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+}
+
+.recent-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    background: var(--surface-2);
+}
+
+@media (max-width: 991.98px) {
+    .recent-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .recent-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* =========================================================

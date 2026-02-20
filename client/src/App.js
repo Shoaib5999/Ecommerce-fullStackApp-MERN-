@@ -20,6 +20,7 @@ import UpdateProduct from "./pages/Admin/UpdateProduct";
 import SearchProducts from "./pages/SearchProducts";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
+import Wishlist from "./pages/Wishlist";
 // import CartPage from "./pages/CartPage";
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
         <Route path="/contact" element={<Contact></Contact>} />
         <Route path="/policy" element={<Policy></Policy>} />
         <Route path="/dashboard/shopping/cart" element={<CartPage />} />
+        <Route path="/dashboard/shopping/wishlist" element={<Wishlist />} />
 
         <Route path="/*" element={<PageNotFount></PageNotFount>} />
       </Routes>

@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/cart";
 import { FaStar } from "react-icons/fa";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import { useWishlist } from "../context/wishlist";
+import { addToCart } from "../utils/cartUtils";
+import { toggleWishlist } from "../utils/wishlistUtils";
 
 function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("featured");
   const [pagination, setPagination] = useState({
     hasNextPage: false,
     hasPreviousPage: false,
@@ -18,6 +23,7 @@ function Home() {
     page: 1,
   });
   const [cart, setCart] = useCart();
+  const [wishlist, setWishlist] = useWishlist();
   //get All Categories
   useEffect(() => {
     const getAllProducts = async () => {
@@ -77,6 +83,39 @@ function Home() {
     getAllCategories();
     // getFilteredProducts()
   }, []);
+
+  const sortedProducts = useMemo(() => {
+    const list = [...(products ?? [])];
+    if (sortBy === "price-low") {
+      return list.sort((a, b) => (a.price || 0) - (b.price || 0));
+    }
+    if (sortBy === "price-high") {
+      return list.sort((a, b) => (b.price || 0) - (a.price || 0));
+    }
+    if (sortBy === "name") {
+      return list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    }
+    if (sortBy === "featured") {
+      return list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+    }
+    return list;
+  }, [products, sortBy]);
+
+  const handleAddToCart = (product) => {
+    const updated = addToCart(cart, product, 1);
+    setCart(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
+    toast.success("Added To Cart");
+  };
+
+  const handleToggleWishlist = (product) => {
+    const updated = toggleWishlist(wishlist, product);
+    setWishlist(updated);
+    localStorage.setItem("wishlist", JSON.stringify(updated));
+    const exists = wishlist.some((item) => item._id === product._id);
+    toast.info(exists ? "Removed from wishlist" : "Saved to wishlist");
+  };
+
   return (
     <>
       <Layout title={"All Products - Best Offers"}>
@@ -105,9 +144,28 @@ function Home() {
           </div>
           <div className="col-md-9">
             <h1 className="text-center mt-4">All Products</h1>
+            <div className="catalog-toolbar surface p-3 mt-3 mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div className="text-muted">
+                Showing <strong>{sortedProducts.length}</strong> items
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <span className="text-muted">Sort by</span>
+                <select
+                  className="form-select form-select-sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  style={{ minWidth: 180 }}
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="name">Name</option>
+                </select>
+              </div>
+            </div>
 
             <div className="d-flex flex-wrap">
-              {products?.map((p, i) => (
+              {sortedProducts?.map((p, i) => (
                 <div
                   className="card"
                   style={{ width: "18rem", margin: "10px" }}
@@ -118,21 +176,33 @@ function Home() {
                     className="card-img-top"
                     alt="network error"
                   />
-                  {p.featured ? (
-                    <div className="d-flex justify-content-end align-items-center p-2">
+                  <div className="d-flex justify-content-between align-items-center p-2">
+                    {p.featured ? (
                       <span className="badge bg-warning text-dark d-flex align-items-center px-2 py-1">
                         <FaStar color="green" size={12} className="me-1" />
                         Featured
                       </span>
-                    </div>
-                  ) : (
-                    <></>
-                  )}
+                    ) : (
+                      <span />
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-light btn-icon"
+                      onClick={() => handleToggleWishlist(p)}
+                      aria-label="Save to wishlist"
+                    >
+                      {wishlist.some((item) => item._id === p._id) ? (
+                        <AiFillHeart className="text-danger" />
+                      ) : (
+                        <AiOutlineHeart />
+                      )}
+                    </button>
+                  </div>
 
                   <div className="card-body">
                     <h5 className="card-title">{p.name}</h5>
                     <p className="card-text">
-                      {p.description.substring(0, 30)}...
+                      {p.description?.substring(0, 30)}...
                     </p>
                     <p className="card-text"> ${p.price}</p>
 
@@ -145,14 +215,7 @@ function Home() {
                       <button
                         href="#"
                         className="btn btn-secondary ms-4"
-                        onClick={() => {
-                          setCart([...cart, p]);
-                          localStorage.setItem(
-                            "cart",
-                            JSON.stringify([...cart, p]),
-                          );
-                          toast.success("Added To Cart");
-                        }}
+                        onClick={() => handleAddToCart(p)}
                       >
                         Add To Cart
                       </button>

@@ -38,7 +38,7 @@ const Search = () => {
   };
 
   return (
-    <form className="input-group w-25" onSubmit={handleSubmit}>
+    <form className="search-bar" onSubmit={handleSubmit}>
       <Dropdown
         menu={{
           items: suggestions?.map((result) => ({
@@ -51,8 +51,8 @@ const Search = () => {
       >
         <input
         type="search"
-        className="form-control"
-        placeholder="Search"
+        className="form-control search-input"
+        placeholder="Search products"
         aria-label="Search"
         value={value ?? ""}
         onChange={(e) => handleSearch(e)}
@@ -60,7 +60,7 @@ const Search = () => {
       />
       </Dropdown>
       
-      <button type="submit" className="btn btn-primary">
+      <button type="submit" className="btn btn-primary search-button">
         Search
       </button>
     </form>

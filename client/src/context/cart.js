@@ -1,4 +1,5 @@
 import { useState, useContext, createContext, useEffect } from "react";
+import { normalizeCart } from "../utils/cartUtils";
 
 const CartContext = createContext();
 const CartProvider = ({ children }) => {
@@ -6,7 +7,13 @@ const CartProvider = ({ children }) => {
 
   useEffect(() => {
     let existingCartItem = localStorage.getItem("cart");
-    if (existingCartItem) setCart(JSON.parse(existingCartItem));
+    if (existingCartItem) {
+      try {
+        setCart(normalizeCart(JSON.parse(existingCartItem)));
+      } catch (err) {
+        setCart([]);
+      }
+    }
   }, []);
 
   return (
