@@ -105,7 +105,7 @@ const ProductDetails = () => {
     ].slice(0, 6);
     localStorage.setItem("recentlyViewed", JSON.stringify(updated));
     setRecentlyViewed(updated);
-  }, [p?._id]);
+  }, [p?._id, p?.name, p?.photoUrl, p?.price, p?.slug]);
 
   return (
     <Layout
