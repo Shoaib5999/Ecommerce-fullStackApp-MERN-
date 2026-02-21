@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { AiOutlineShoppingCart, AiOutlineHeart } from "react-icons/ai";
+import {
+  AiOutlineShoppingCart,
+  AiOutlineHeart,
+  AiOutlineSearch,
+} from "react-icons/ai";
 import { useAuth } from "../../context/auth";
 import { useLocation } from "react-router-dom";
 import Search from "./Search";
@@ -14,6 +18,7 @@ function Header() {
   const [cart] = useCart();
   const [wishlist] = useWishlist();
   const [auth, setAuth] = useAuth();
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const totalCartCount = cartCount(cart);
   const totalWishlistCount = wishlistCount(wishlist);
   const handleLogout = () => {
@@ -28,22 +33,39 @@ function Header() {
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarTogglerDemo01"
-            aria-controls="navbarTogglerDemo01"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+          <div className="navbar-quick-actions">
+            <button
+              className="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarTogglerDemo01"
+              aria-controls="navbarTogglerDemo01"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            {location.pathname === "/" && (
+              <button
+                type="button"
+                className="btn btn-light mobile-search-toggle d-lg-none"
+                aria-label="Toggle search"
+                aria-expanded={mobileSearchOpen}
+                onClick={() => setMobileSearchOpen((open) => !open)}
+              >
+                <AiOutlineSearch />
+              </button>
+            )}
+          </div>
           <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
             <Link to="/" className="navbar-brand">
               <AiOutlineShoppingCart className="navbar-logo" /> Ecommerce App
             </Link>
-            {location.pathname === "/" && <Search />}
+            {location.pathname === "/" && (
+              <div className="d-none d-lg-flex">
+                <Search />
+              </div>
+            )}
 
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
               <li className="nav-item">
@@ -118,6 +140,15 @@ function Header() {
               </li>
             </ul>
           </div>
+          {location.pathname === "/" && (
+            <div
+              className={`mobile-search d-lg-none ${
+                mobileSearchOpen ? "is-open" : ""
+              }`}
+            >
+              <Search />
+            </div>
+          )}
         </div>
       </nav>
     </>

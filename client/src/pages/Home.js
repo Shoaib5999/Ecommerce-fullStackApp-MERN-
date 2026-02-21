@@ -16,6 +16,7 @@ function Home() {
   const [checked, setChecked] = useState([]);
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("featured");
+  const [categoryOpen, setCategoryOpen] = useState(true);
   const [pagination, setPagination] = useState({
     hasNextPage: false,
     hasPreviousPage: false,
@@ -84,6 +85,12 @@ function Home() {
     // getFilteredProducts()
   }, []);
 
+  useEffect(() => {
+    if (window?.matchMedia?.("(max-width: 767.98px)")?.matches) {
+      setCategoryOpen(false);
+    }
+  }, []);
+
   const sortedProducts = useMemo(() => {
     const list = [...(products ?? [])];
     if (sortBy === "price-low") {
@@ -121,8 +128,27 @@ function Home() {
       <Layout title={"All Products - Best Offers"}>
         <div className="row">
           <div className="col-md-3">
-            <h4 className="text-center mt-4">Filter By Category</h4>
-            <div className="">
+            <div className="category-header mt-4">
+              <h4 className="text-center mb-0">Filter By Category</h4>
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm category-toggle d-md-none"
+                aria-expanded={categoryOpen}
+                aria-controls="categoryFilters"
+                onClick={() => setCategoryOpen((open) => !open)}
+              >
+                Categories
+                <span
+                  className={`category-chevron ${
+                    categoryOpen ? "is-open" : ""
+                  }`}
+                />
+              </button>
+            </div>
+            <div
+              id="categoryFilters"
+              className={`category-list ${categoryOpen ? "is-open" : "is-closed"}`}
+            >
               {categories.map((c, i) => (
                 <div className="form-check" key={i}>
                   <input

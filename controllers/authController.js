@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 import User from "../models/userModels.js";
 import JWT from "jsonwebtoken";
@@ -87,6 +88,7 @@ export const loginController = async (req, res) => {
         phone: user.phone,
         address: user.address,
         role: user.role,
+        deliveryAddresses: user.deliveryAddresses || [],
       },
       token,
     });
@@ -166,4 +168,145 @@ export const updateProfileController = async (req, res) => {
 
 export const testController = (req, res) => {
   res.send("Working fine");
+};
+
+// --- Delivery addresses (separate from profile) ---
+export const getAddressesController = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("deliveryAddresses");
+    res.status(200).json({
+      success: true,
+      deliveryAddresses: user.deliveryAddresses || [],
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching addresses",
+      error: error.message,
+    });
+  }
+};
+
+export const addAddressController = async (req, res) => {
+  try {
+    const { label, street, city, state, zip, country, isDefault } = req.body;
+    if (!street || !city || !country) {
+      return res.status(400).json({
+        success: false,
+        message: "Street, city and country are required",
+      });
+    }
+    const user = await User.findById(req.user._id);
+    const addresses = user.deliveryAddresses || [];
+    if (isDefault) {
+      addresses.forEach((a) => (a.isDefault = false));
+    }
+    const newAddr = {
+      _id: new mongoose.Types.ObjectId(),
+      label: label || "Home",
+      street,
+      city,
+      state: state || "",
+      zip: zip || "",
+      country,
+      isDefault: !!isDefault,
+    };
+    addresses.push(newAddr);
+    await User.findByIdAndUpdate(req.user._id, { deliveryAddresses: addresses });
+    res.status(201).json({
+      success: true,
+      message: "Address added",
+      deliveryAddresses: addresses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error adding address",
+      error: error.message,
+    });
+  }
+};
+
+export const updateAddressController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { label, street, city, state, zip, country, isDefault } = req.body;
+    const user = await User.findById(req.user._id);
+    const addresses = user.deliveryAddresses || [];
+    const idx = addresses.findIndex((a) => a._id.toString() === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, message: "Address not found" });
+    }
+    if (street) addresses[idx].street = street;
+    if (city) addresses[idx].city = city;
+    if (label !== undefined) addresses[idx].label = label;
+    if (state !== undefined) addresses[idx].state = state;
+    if (zip !== undefined) addresses[idx].zip = zip;
+    if (country !== undefined) addresses[idx].country = country;
+    if (isDefault === true) {
+      addresses.forEach((a, i) => (addresses[i].isDefault = i === idx));
+    }
+    await User.findByIdAndUpdate(req.user._id, { deliveryAddresses: addresses });
+    res.status(200).json({
+      success: true,
+      message: "Address updated",
+      deliveryAddresses: addresses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating address",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteAddressController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(req.user._id);
+    let addresses = user.deliveryAddresses || [];
+    const idx = addresses.findIndex((a) => a._id.toString() === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, message: "Address not found" });
+    }
+    addresses = addresses.filter((_, i) => i !== idx);
+    await User.findByIdAndUpdate(req.user._id, { deliveryAddresses: addresses });
+    res.status(200).json({
+      success: true,
+      message: "Address deleted",
+      deliveryAddresses: addresses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting address",
+      error: error.message,
+    });
+  }
+};
+
+export const setDefaultAddressController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(req.user._id);
+    const addresses = user.deliveryAddresses || [];
+    const idx = addresses.findIndex((a) => a._id.toString() === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, message: "Address not found" });
+    }
+    addresses.forEach((a, i) => (addresses[i].isDefault = i === idx));
+    await User.findByIdAndUpdate(req.user._id, { deliveryAddresses: addresses });
+    res.status(200).json({
+      success: true,
+      message: "Default address updated",
+      deliveryAddresses: addresses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error setting default address",
+      error: error.message,
+    });
+  }
 };

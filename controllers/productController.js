@@ -1,6 +1,5 @@
 import productModel from "../models/productModel.js";
 import slugify from "slugify";
-import fs from "fs";
 import braintree from "braintree";
 import orderModel from "../models/orderModel.js";
 import cloudinary from "../middlewares/cloudinary.js";
@@ -11,6 +10,13 @@ var gateway = new braintree.BraintreeGateway({
   publicKey: "sandbox_public_key_here",
   privateKey: "sandbox_private_key_here",
 });
+
+const normalizePhotos = (input) => {
+  if (!input) return [];
+  if (Array.isArray(input)) return input;
+  if (input.path) return [input];
+  return Object.values(input).filter((item) => item?.path);
+};
 
 export const createProductController1 = async (req, res) => {
   try {
@@ -73,7 +79,8 @@ export const createProductController = async (req, res) => {
   try {
     const { name, description, price, category, quantity, shipping } =
       req.fields || {};
-    const photo = req.files?.photo;
+    const photosInput = req.files?.photos ?? req.files?.photo;
+    const photos = normalizePhotos(photosInput);
 
     if (
       !name ||
@@ -87,10 +94,16 @@ export const createProductController = async (req, res) => {
         message: "All fields are required (name, description, price, category, quantity)",
       });
     }
-    if (!photo || photo.size > 3000000) {
+    if (!photos.length) {
       return res.status(400).json({
         success: false,
-        message: "Photo is required and should be less than 3MB",
+        message: "At least one photo is required",
+      });
+    }
+    if (photos.some((photo) => photo?.size > 3000000)) {
+      return res.status(400).json({
+        success: false,
+        message: "Each photo should be less than 3MB",
       });
     }
 
@@ -104,10 +117,14 @@ export const createProductController = async (req, res) => {
       shipping: shipping === "1" || shipping === true,
     });
 
-    const result = await cloudinary.uploader.upload(photo.path, {
-      folder: "ProductsImages",
-    });
-    product.photoUrl = result.secure_url;
+    const uploads = await Promise.all(
+      photos.map((photo) =>
+        cloudinary.uploader.upload(photo.path, { folder: "ProductsImages" })
+      )
+    );
+    const urls = uploads.map((result) => result.secure_url);
+    product.photoUrl = urls[0];
+    product.photoUrls = urls;
 
     await product.save();
 
@@ -198,7 +215,8 @@ export const updateProductController = async (req, res) => {
   try {
     const { name, slug, description, price, category, quantity, shipping } =
       req.fields;
-    const { photo } = req.files;
+    const photosInput = req.files?.photos ?? req.files?.photo;
+    const photos = normalizePhotos(photosInput);
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name Is Required" });
@@ -216,9 +234,21 @@ export const updateProductController = async (req, res) => {
       { ...req.fields, slug: slugify(name) }
     );
 
-    if (photo) {
-      product.photo.data = fs.readFileSync(photo.path);
-      product.photo.contentType = photo.type;
+    if (photos.length) {
+      if (photos.some((photo) => photo?.size > 3000000)) {
+        return res.status(400).send({
+          success: false,
+          message: "Each photo should be less than 3MB",
+        });
+      }
+      const uploads = await Promise.all(
+        photos.map((photo) =>
+          cloudinary.uploader.upload(photo.path, { folder: "ProductsImages" })
+        )
+      );
+      const urls = uploads.map((result) => result.secure_url);
+      product.photoUrl = urls[0];
+      product.photoUrls = urls;
     }
 
     await product.save();

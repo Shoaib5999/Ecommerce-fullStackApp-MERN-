@@ -20,7 +20,8 @@ const UpdateProduct = () => {
   const [category, setCategory] = useState("");
   const [quantity, setQuantity] = useState("");
   const [shipping, setShipping] = useState("");
-  const [photo, setPhoto] = useState("");
+  const [photos, setPhotos] = useState([]);
+  const [existingPhotos, setExistingPhotos] = useState([]);
 
   //get single product
   const getSingleProduct = async () => {
@@ -38,6 +39,12 @@ const UpdateProduct = () => {
       setQuantity(data.products.quantity);
       setShipping(data.products.shipping);
       setCategory(data.products.category);
+      const urls = data.products.photoUrls?.length
+        ? data.products.photoUrls
+        : data.products.photoUrl
+        ? [data.products.photoUrl]
+        : [];
+      setExistingPhotos(urls);
     } catch (error) {
       console.log(error);
     }
@@ -75,8 +82,10 @@ const UpdateProduct = () => {
       productData.append("price", price);
       productData.append("quantity", quantity);
       productData.append("category", category);
-      if (photo) {
-        productData.append("photo", photo);
+      if (photos.length) {
+        photos.forEach((file) => {
+          productData.append("photos", file);
+        });
       }
       //   const { data } = axios.put(
       //     `/api/v1/product/update-product/${id}`,
@@ -152,34 +161,41 @@ const UpdateProduct = () => {
               </Select>
               <div className="mb-3">
                 <label className="btn btn-outline-secondary col-md-12">
-                  {photo ? photo.name : "Upload Photo"}
+                  {photos.length ? `${photos.length} photo(s) selected` : "Upload Photos"}
                   <input
                     type="file"
-                    name="photo"
+                    name="photos"
                     accept="image/*"
-                    onChange={(e) => setPhoto(e.target.files[0])}
+                    multiple
+                    onChange={(e) => setPhotos(Array.from(e.target.files || []))}
                     hidden
                   />
                 </label>
               </div>
               <div className="mb-3">
-                {photo ? (
-                  <div className="text-center">
-                    <img
-                      src={URL.createObjectURL(photo)}
-                      alt="product_photo"
-                      height={"200px"}
-                      className="img img-responsive"
-                    />
+                {!!photos.length ? (
+                  <div className="d-flex flex-wrap gap-2">
+                    {photos.map((file, index) => (
+                      <img
+                        key={`${file.name}-${index}`}
+                        src={URL.createObjectURL(file)}
+                        alt="product_photo"
+                        height={"120px"}
+                        className="img img-responsive"
+                      />
+                    ))}
                   </div>
                 ) : (
-                  <div className="text-center">
-                    <img
-                      src={`/api/v1/products/get-product-photo/${p_id}`}
-                      alt="product_photo"
-                      height={"200px"}
-                      className="img img-responsive"
-                    />
+                  <div className="d-flex flex-wrap gap-2">
+                    {existingPhotos.map((url, index) => (
+                      <img
+                        key={`${url}-${index}`}
+                        src={url}
+                        alt="product_photo"
+                        height={"120px"}
+                        className="img img-responsive"
+                      />
+                    ))}
                   </div>
                 )}
               </div>

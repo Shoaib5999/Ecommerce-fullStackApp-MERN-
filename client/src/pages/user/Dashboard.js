@@ -16,7 +16,15 @@ const Dashboard = () => {
             <div className="card w-75 p-3">
               <h3>{auth?.user?.name}</h3>
               <h3>{auth?.user?.email}</h3>
-              <h3>{auth?.user?.address}</h3>
+              <p className="text-muted mb-0">
+                {auth?.user?.deliveryAddresses?.length > 0
+                  ? (() => {
+                      const list = auth.user.deliveryAddresses;
+                      const d = list.find((a) => a.isDefault) || list[0];
+                      return [d.street, d.city, d.state, d.zip, d.country].filter(Boolean).join(", ");
+                    })()
+                  : auth?.user?.address || "—"}
+              </p>
             </div>
           </div>
         </div>

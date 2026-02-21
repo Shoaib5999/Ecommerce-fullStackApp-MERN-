@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -18,6 +18,8 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const galleryRef = useRef(null);
 
   const [cart, setCart] = useCart();
   const [wishlist, setWishlist] = useWishlist();
@@ -26,6 +28,15 @@ const ProductDetails = () => {
     if (!p?.name) return "Product Details";
     return `${p.name} | Ecommerce App`;
   }, [p?.name]);
+
+  const imageUrls = useMemo(() => {
+    if (!p) return [];
+    if (Array.isArray(p.photoUrls) && p.photoUrls.length) {
+      return p.photoUrls.filter(Boolean);
+    }
+    if (p.photoUrl) return [p.photoUrl];
+    return [];
+  }, [p]);
 
   const getSingleProduct = async () => {
     if (!slug) return;
@@ -51,6 +62,13 @@ const ProductDetails = () => {
     setQty(1);
   }, [p?._id]);
 
+  useEffect(() => {
+    setActiveImageIndex(0);
+    if (galleryRef.current) {
+      galleryRef.current.scrollTo({ left: 0, behavior: "instant" });
+    }
+  }, [p?._id]);
+
   const handleAddToCart = () => {
     if (!p?._id) return;
     const updated = addToCart(cart, p, qty);
@@ -69,6 +87,23 @@ const ProductDetails = () => {
   };
 
   const handleGoBack = () => navigate(-1);
+
+  const handleGalleryScroll = () => {
+    const node = galleryRef.current;
+    if (!node) return;
+    const index = Math.round(node.scrollLeft / node.clientWidth);
+    setActiveImageIndex(index);
+  };
+
+  const scrollToImage = (index) => {
+    const node = galleryRef.current;
+    if (!node) return;
+    const clamped = Math.max(0, Math.min(index, imageUrls.length - 1));
+    node.scrollTo({
+      left: clamped * node.clientWidth,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const existing = localStorage.getItem("recentlyViewed");
@@ -167,23 +202,55 @@ const ProductDetails = () => {
             {/* Image */}
             <div className="col-12 col-lg-6">
               <div className="surface p-3">
-                <div
-                  style={{
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    background: "rgba(241, 243, 249, 1)",
-                  }}
-                >
-                  <img
-                    src={p.photoUrl}
-                    alt={p?.name ?? "Product image"}
-                    style={{
-                      width: "100%",
-                      aspectRatio: "4 / 3",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
+                <div className="product-gallery">
+                  <div
+                    className="product-gallery-track"
+                    ref={galleryRef}
+                    onScroll={handleGalleryScroll}
+                  >
+                    {imageUrls.map((url, index) => (
+                      <div className="product-gallery-slide" key={url + index}>
+                        <img
+                          src={url}
+                          alt={`${p?.name ?? "Product"} ${index + 1}`}
+                          className="product-gallery-image"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  {imageUrls.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-light product-gallery-nav prev"
+                        aria-label="Previous image"
+                        onClick={() => scrollToImage(activeImageIndex - 1)}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light product-gallery-nav next"
+                        aria-label="Next image"
+                        onClick={() => scrollToImage(activeImageIndex + 1)}
+                      >
+                        ›
+                      </button>
+                      <div className="product-gallery-dots">
+                        {imageUrls.map((_, index) => (
+                          <button
+                            key={`dot-${index}`}
+                            type="button"
+                            className={`product-gallery-dot ${
+                              activeImageIndex === index ? "is-active" : ""
+                            }`}
+                            aria-label={`Show image ${index + 1}`}
+                            onClick={() => scrollToImage(index)}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

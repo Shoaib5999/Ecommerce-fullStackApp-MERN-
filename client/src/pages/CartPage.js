@@ -238,13 +238,20 @@ const CartPage = () => {
                     <>
                       <div className="address-box">
                         <h5 className="mb-1">Delivery Address</h5>
-                        <p className="text-muted mb-2">{auth.user.address}</p>
+                        <p className="text-muted mb-2">
+                          {(() => {
+                            const list = auth.user.deliveryAddresses || [];
+                            const defaultOrFirst = list.find((a) => a.isDefault) || list[0];
+                            if (defaultOrFirst) {
+                              return [defaultOrFirst.street, defaultOrFirst.city, defaultOrFirst.state, defaultOrFirst.zip, defaultOrFirst.country].filter(Boolean).join(", ");
+                            }
+                            return auth.user.address || "Add an address in your profile";
+                          })()}
+                        </p>
                         <button
                           type="button"
                           className="btn btn-outline-primary w-100"
-                          onClick={() => {
-                            Navigate("/dashboard/user/profile");
-                          }}
+                          onClick={() => Navigate("/dashboard/user/profile")}
                         >
                           Change Address
                         </button>
@@ -262,7 +269,13 @@ const CartPage = () => {
                         <button
                           className="btn btn-primary w-100"
                           onClick={handlePayment}
-                          disabled={!instance || !auth?.user?.address}
+                          disabled={
+                            !instance ||
+                            !(
+                              auth?.user?.address ||
+                              (auth?.user?.deliveryAddresses && auth.user.deliveryAddresses.length > 0)
+                            )
+                          }
                         >
                           Make Payment
                         </button>

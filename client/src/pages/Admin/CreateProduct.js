@@ -24,7 +24,7 @@ const CreateProduct = () => {
   const [category, setCategory] = useState("");
   const [quantity, setQuantity] = useState("");
   const [shipping, setShipping] = useState("");
-  const [photo, setPhoto] = useState("");
+  const [photos, setPhotos] = useState([]);
   const [auth] = useAuth();
 
   //get all category
@@ -49,8 +49,8 @@ const CreateProduct = () => {
   //create product function
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!name || !description || !price || !quantity || !category || !photo) {
-      toast.error("All fields including photo are required");
+    if (!name || !description || !price || !quantity || !category || !photos.length) {
+      toast.error("All fields including at least one photo are required");
       return;
     }
     try {
@@ -59,7 +59,9 @@ const CreateProduct = () => {
       productData.append("description", description);
       productData.append("price", price);
       productData.append("quantity", quantity);
-      productData.append("photo", photo);
+      photos.forEach((file) => {
+        productData.append("photos", file);
+      });
       productData.append("category", category);
       if (shipping !== undefined && shipping !== "") {
         productData.append("shipping", shipping);
@@ -115,25 +117,29 @@ const CreateProduct = () => {
               </Select>
               <div className="mb-3">
                 <label className="btn btn-outline-secondary col-md-12">
-                  {photo ? photo.name : "Upload Photo"}
+                  {photos.length ? `${photos.length} photo(s) selected` : "Upload Photos"}
                   <input
                     type="file"
-                    name="photo"
+                    name="photos"
                     accept="image/*"
-                    onChange={(e) => setPhoto(e.target.files[0])}
+                    multiple
+                    onChange={(e) => setPhotos(Array.from(e.target.files || []))}
                     hidden
                   />
                 </label>
               </div>
               <div className="mb-3">
-                {photo && (
-                  <div className="text-center">
-                    <img
-                      src={URL.createObjectURL(photo)}
-                      alt="product_photo"
-                      height={"200px"}
-                      className="img img-responsive"
-                    />
+                {!!photos.length && (
+                  <div className="d-flex flex-wrap gap-2">
+                    {photos.map((file, index) => (
+                      <img
+                        key={`${file.name}-${index}`}
+                        src={URL.createObjectURL(file)}
+                        alt="product_photo"
+                        height={"120px"}
+                        className="img img-responsive"
+                      />
+                    ))}
                   </div>
                 )}
               </div>

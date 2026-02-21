@@ -21,7 +21,7 @@ const router = express.Router();
 //routes
 router.post(
   "/create-product",
-  formidableMiddleware(),
+  formidableMiddleware({ multiples: true }),
   requireSignIn,
   isAdmin,
   createProductController
@@ -33,7 +33,7 @@ router.put(
   "/update-product/:slug",
   requireSignIn,
   isAdmin,
-  formidableMiddleware(),
+  formidableMiddleware({ multiples: true }),
   updateProductController
 );
 router.delete(

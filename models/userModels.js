@@ -24,6 +24,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    deliveryAddresses: [
+      {
+        label: { type: String, default: "Home" },
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, default: "" },
+        zip: { type: String, default: "" },
+        country: { type: String, required: true },
+        isDefault: { type: Boolean, default: false },
+      },
+    ],
     answer: {
       type: String,
       required: false,

@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema(
     category: { type: mongoose.ObjectId, ref: "Category", required: true },
     quantity: { type: Number, required: true },
     photoUrl: { type: String, required: true },
+    photoUrls: [{ type: String }],
     featured: { type: Boolean, default: false },
     shipping: { type: Boolean },
   },
