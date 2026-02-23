@@ -90,9 +90,7 @@ const CartPage = () => {
                 : "Your cart is empty."}
             </p>
           </div>
-          <Link to="/" className="btn btn-secondary">
-            Continue Shopping
-          </Link>
+         
         </div>
 
         {cart?.length === 0 ? (
@@ -174,6 +172,11 @@ const CartPage = () => {
             </div>
 
             <div className="col-12 col-lg-4">
+              <div  className="sticky-shopping">
+              <Link to="/" className="btn btn-secondary ">
+                Continue Shopping
+              </Link>
+              </div>
               <div className="surface p-4 sticky-summary">
                 <h2 className="mb-2">Order Summary</h2>
                 <p className="text-muted mb-3">

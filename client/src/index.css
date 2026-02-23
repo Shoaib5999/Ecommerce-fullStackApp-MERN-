@@ -781,6 +781,13 @@ main {
     top: 90px;
 }
 
+.sticky-shopping {
+    position: sticky;
+    top: 20px;
+    z-index: 1000;
+    margin-bottom: 1rem;
+}
+
 .promo-box {
     background: rgba(241, 243, 249, 0.7);
     border: 1px dashed rgba(37, 99, 235, 0.3);
@@ -803,7 +810,9 @@ main {
 }
 
 .recent-card {
-    transition: transform 160ms ease, box-shadow 160ms ease;
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease;
 }
 
 .recent-card:hover {
