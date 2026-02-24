@@ -52,7 +52,10 @@ const Profile = () => {
           setDeliveryAddresses(data.deliveryAddresses || []);
           setAuth((prev) => ({
             ...prev,
-            user: { ...prev.user, deliveryAddresses: data.deliveryAddresses || [] },
+            user: {
+              ...prev.user,
+              deliveryAddresses: data.deliveryAddresses || [],
+            },
           }));
         }
       } catch (err) {
@@ -62,7 +65,7 @@ const Profile = () => {
       }
     };
     fetchAddresses();
-  }, [auth?.token]);
+  }, [auth?.token, setAuth]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +73,7 @@ const Profile = () => {
       const res = await axios.put(
         "/api/v1/auth/profile",
         { name, email, password, phone },
-        { headers: { Authorization: auth.token } }
+        { headers: { Authorization: auth.token } },
       );
       if (res?.data?.success) {
         toast.success(res.data.message || "Profile updated");
@@ -105,8 +108,11 @@ const Profile = () => {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
             {
-              headers: { "Accept-Language": "en", "User-Agent": "EcommerceApp/1.0" },
-            }
+              headers: {
+                "Accept-Language": "en",
+                "User-Agent": "EcommerceApp/1.0",
+              },
+            },
           );
           const data = await res.json();
           if (!data?.address) {
@@ -115,10 +121,15 @@ const Profile = () => {
             return;
           }
           const a = data.address;
-          const street = [a.house_number, a.road, a.street, a.pedestrian, a.footway]
-            .filter(Boolean)
-            .join(" ") || a.suburb || a.neighbourhood || "Current location";
-          const city = a.city || a.town || a.village || a.municipality || a.county || "";
+          const street =
+            [a.house_number, a.road, a.street, a.pedestrian, a.footway]
+              .filter(Boolean)
+              .join(" ") ||
+            a.suburb ||
+            a.neighbourhood ||
+            "Current location";
+          const city =
+            a.city || a.town || a.village || a.municipality || a.county || "";
           const state = a.state || "";
           const zip = a.postcode || "";
           const country = a.country || "";
@@ -133,7 +144,9 @@ const Profile = () => {
             isDefault: false,
           });
           setShowAddressForm(true);
-          toast.success("Address filled from your location. You can edit and save.");
+          toast.success(
+            "Address filled from your location. You can edit and save.",
+          );
         } catch (err) {
           toast.error("Could not get address from location");
         } finally {
@@ -146,7 +159,7 @@ const Profile = () => {
         else if (err.code === 2) toast.error("Location unavailable");
         else toast.error("Could not get your location");
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     );
   };
 
@@ -201,7 +214,10 @@ const Profile = () => {
         setDeliveryAddresses(data.deliveryAddresses || []);
         setAuth((prev) => ({
           ...prev,
-          user: { ...prev.user, deliveryAddresses: data.deliveryAddresses || [] },
+          user: {
+            ...prev.user,
+            deliveryAddresses: data.deliveryAddresses || [],
+          },
         }));
       }
       closeAddressForm();
@@ -222,7 +238,10 @@ const Profile = () => {
         setDeliveryAddresses(data.deliveryAddresses || []);
         setAuth((prev) => ({
           ...prev,
-          user: { ...prev.user, deliveryAddresses: data.deliveryAddresses || [] },
+          user: {
+            ...prev.user,
+            deliveryAddresses: data.deliveryAddresses || [],
+          },
         }));
         toast.success("Address removed");
       }
@@ -236,13 +255,16 @@ const Profile = () => {
       const { data } = await axios.patch(
         `/api/v1/auth/addresses/${id}/default`,
         {},
-        { headers: { Authorization: auth.token } }
+        { headers: { Authorization: auth.token } },
       );
       if (data.success) {
         setDeliveryAddresses(data.deliveryAddresses || []);
         setAuth((prev) => ({
           ...prev,
-          user: { ...prev.user, deliveryAddresses: data.deliveryAddresses || [] },
+          user: {
+            ...prev.user,
+            deliveryAddresses: data.deliveryAddresses || [],
+          },
         }));
         toast.success("Default address updated");
       }
@@ -276,7 +298,9 @@ const Profile = () => {
                 <h4 className="card-title mb-4">Profile</h4>
                 <form onSubmit={handleProfileSubmit}>
                   <div className="mb-3">
-                    <label htmlFor="profileName" className="form-label">Name</label>
+                    <label htmlFor="profileName" className="form-label">
+                      Name
+                    </label>
                     <input
                       type="text"
                       value={name}
@@ -288,7 +312,9 @@ const Profile = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="profileEmail" className="form-label">Email</label>
+                    <label htmlFor="profileEmail" className="form-label">
+                      Email
+                    </label>
                     <input
                       type="email"
                       value={email}
@@ -300,7 +326,9 @@ const Profile = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="profilePassword" className="form-label">Password</label>
+                    <label htmlFor="profilePassword" className="form-label">
+                      Password
+                    </label>
                     <input
                       type="password"
                       value={password}
@@ -311,7 +339,9 @@ const Profile = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="profilePhone" className="form-label">Phone</label>
+                    <label htmlFor="profilePhone" className="form-label">
+                      Phone
+                    </label>
                     <input
                       type="text"
                       value={phone}
@@ -350,32 +380,53 @@ const Profile = () => {
                         disabled={gettingLocation}
                         title="Use your current location to fill the address"
                       >
-                        {gettingLocation ? "Getting location…" : "Use current location"}
+                        {gettingLocation
+                          ? "Getting location…"
+                          : "Use current location"}
                       </button>
                     </div>
                   )}
                 </div>
 
                 {showAddressForm && (
-                  <form onSubmit={handleAddressSubmit} className="mb-4 p-3 border rounded bg-light">
-                    <h6 className="mb-3">{editingAddressId ? "Edit address" : "New address"}</h6>
+                  <form
+                    onSubmit={handleAddressSubmit}
+                    className="mb-4 p-3 border rounded bg-light"
+                  >
+                    <h6 className="mb-3">
+                      {editingAddressId ? "Edit address" : "New address"}
+                    </h6>
                     <div className="row g-2">
                       <div className="col-12 col-md-6">
-                        <label className="form-label small">Label (e.g. Home, Office)</label>
+                        <label className="form-label small">
+                          Label (e.g. Home, Office)
+                        </label>
                         <input
                           type="text"
                           value={addressForm.label}
-                          onChange={(e) => setAddressForm((f) => ({ ...f, label: e.target.value }))}
+                          onChange={(e) =>
+                            setAddressForm((f) => ({
+                              ...f,
+                              label: e.target.value,
+                            }))
+                          }
                           className="form-control form-control-sm"
                           placeholder="Home"
                         />
                       </div>
                       <div className="col-12">
-                        <label className="form-label small">Street address *</label>
+                        <label className="form-label small">
+                          Street address *
+                        </label>
                         <input
                           type="text"
                           value={addressForm.street}
-                          onChange={(e) => setAddressForm((f) => ({ ...f, street: e.target.value }))}
+                          onChange={(e) =>
+                            setAddressForm((f) => ({
+                              ...f,
+                              street: e.target.value,
+                            }))
+                          }
                           className="form-control form-control-sm"
                           placeholder="Street, building, floor"
                           required
@@ -386,28 +437,47 @@ const Profile = () => {
                         <input
                           type="text"
                           value={addressForm.city}
-                          onChange={(e) => setAddressForm((f) => ({ ...f, city: e.target.value }))}
+                          onChange={(e) =>
+                            setAddressForm((f) => ({
+                              ...f,
+                              city: e.target.value,
+                            }))
+                          }
                           className="form-control form-control-sm"
                           placeholder="City"
                           required
                         />
                       </div>
                       <div className="col-6 col-md-4">
-                        <label className="form-label small">State / Province</label>
+                        <label className="form-label small">
+                          State / Province
+                        </label>
                         <input
                           type="text"
                           value={addressForm.state}
-                          onChange={(e) => setAddressForm((f) => ({ ...f, state: e.target.value }))}
+                          onChange={(e) =>
+                            setAddressForm((f) => ({
+                              ...f,
+                              state: e.target.value,
+                            }))
+                          }
                           className="form-control form-control-sm"
                           placeholder="State"
                         />
                       </div>
                       <div className="col-6 col-md-4">
-                        <label className="form-label small">ZIP / Postal code</label>
+                        <label className="form-label small">
+                          ZIP / Postal code
+                        </label>
                         <input
                           type="text"
                           value={addressForm.zip}
-                          onChange={(e) => setAddressForm((f) => ({ ...f, zip: e.target.value }))}
+                          onChange={(e) =>
+                            setAddressForm((f) => ({
+                              ...f,
+                              zip: e.target.value,
+                            }))
+                          }
                           className="form-control form-control-sm"
                           placeholder="ZIP"
                         />
@@ -417,7 +487,12 @@ const Profile = () => {
                         <input
                           type="text"
                           value={addressForm.country}
-                          onChange={(e) => setAddressForm((f) => ({ ...f, country: e.target.value }))}
+                          onChange={(e) =>
+                            setAddressForm((f) => ({
+                              ...f,
+                              country: e.target.value,
+                            }))
+                          }
                           className="form-control form-control-sm"
                           placeholder="Country"
                           required
@@ -430,19 +505,35 @@ const Profile = () => {
                             className="form-check-input"
                             id="addrDefault"
                             checked={addressForm.isDefault}
-                            onChange={(e) => setAddressForm((f) => ({ ...f, isDefault: e.target.checked }))}
+                            onChange={(e) =>
+                              setAddressForm((f) => ({
+                                ...f,
+                                isDefault: e.target.checked,
+                              }))
+                            }
                           />
-                          <label className="form-check-label small" htmlFor="addrDefault">
+                          <label
+                            className="form-check-label small"
+                            htmlFor="addrDefault"
+                          >
                             Use as default delivery address
                           </label>
                         </div>
                       </div>
                     </div>
                     <div className="mt-3 d-flex gap-2">
-                      <button type="submit" className="btn btn-primary btn-sm" disabled={savingAddress}>
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-sm"
+                        disabled={savingAddress}
+                      >
                         {savingAddress ? "Saving…" : "Save address"}
                       </button>
-                      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={closeAddressForm}>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={closeAddressForm}
+                      >
                         Cancel
                       </button>
                     </div>
@@ -464,7 +555,9 @@ const Profile = () => {
                             <div>
                               <span className="fw-semibold">{addr.label}</span>
                               {addr.isDefault && (
-                                <span className="badge bg-primary ms-2">Default</span>
+                                <span className="badge bg-primary ms-2">
+                                  Default
+                                </span>
                               )}
                             </div>
                             <div className="btn-group btn-group-sm">
@@ -480,7 +573,9 @@ const Profile = () => {
                                 <button
                                   type="button"
                                   className="btn btn-outline-secondary"
-                                  onClick={() => handleSetDefaultAddress(addr._id)}
+                                  onClick={() =>
+                                    handleSetDefaultAddress(addr._id)
+                                  }
                                   title="Set as default"
                                 >
                                   Set default
@@ -496,7 +591,9 @@ const Profile = () => {
                               </button>
                             </div>
                           </div>
-                          <p className="text-muted small mb-0 mt-2">{formatAddress(addr)}</p>
+                          <p className="text-muted small mb-0 mt-2">
+                            {formatAddress(addr)}
+                          </p>
                         </div>
                       </div>
                     ))}
