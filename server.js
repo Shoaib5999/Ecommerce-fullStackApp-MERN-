@@ -15,6 +15,8 @@ import productRoutes from "./routes/productRoutes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+import auditLogsDelete from "./cronjobs/auditLogsDelete.js";
+
 // Load .env from project root (must run before any code that reads env)
 dotenv.config({ path: join(__dirname, ".env") });
 
@@ -81,6 +83,8 @@ app.get("/api/health", async (req, res) => {
     res.status(500).json({ ok: false });
   }
 });
+//cron jobs
+auditLogsDelete();
 
 // SPA fallback: serve React index.html for non-API routes if build exists.
 // Otherwise provide a simple message.

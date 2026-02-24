@@ -3,6 +3,7 @@ import slugify from "slugify";
 import braintree from "braintree";
 import orderModel from "../models/orderModel.js";
 import cloudinary from "../middlewares/cloudinary.js";
+import { logAction } from "../helpers/auditLogger.js";
 //@Payment Gateway
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
@@ -258,6 +259,18 @@ export const updateProductController = async (req, res) => {
       message: "Product Updated Successfully",
       product: product,
     });
+    await logAction({
+      userId: req.user._id,
+      action: "Update",
+      entity: "Product",
+      entityId: product._id,
+      changes: {
+        before: product,
+        after: product,
+      },
+      ipAddress: req.ip,
+    });
+    
   } catch (error) {
     console.log(error);
     return res.status(500).send({
@@ -276,6 +289,17 @@ export const deleteProductController = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "Deleted Successfully",
+    });
+    await logAction({
+      userId: req.user._id,
+      action: "Delete",
+      entity: "Product",
+      entityId: deleted._id,
+      changes: {
+        before: deleted,
+        after: null,
+      },
+      ipAddress: req.ip,
     });
   } catch (error) {
     console.log(error);
