@@ -4,13 +4,21 @@ import braintree from "braintree";
 import orderModel from "../models/orderModel.js";
 import cloudinary from "../middlewares/cloudinary.js";
 import { logAction } from "../helpers/auditLogger.js";
-//@Payment Gateway
+import crypto from "crypto";
+
+//@Payment Gateway (Braintree - legacy/sample)
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
   merchantId: "your_sandbox_merchant_id",
   publicKey: "sandbox_public_key_here",
   privateKey: "sandbox_private_key_here",
 });
+
+//@Payment Gateway (Razorpay - sample; replace keys via env later)
+// NOTE: We intentionally do NOT instantiate the official SDK here to keep this sample lightweight.
+// Required env vars you will add later:
+// - RAZORPAY_KEY_ID
+// - RAZORPAY_KEY_SECRET
 
 const normalizePhotos = (input) => {
   if (!input) return [];
@@ -83,16 +91,11 @@ export const createProductController = async (req, res) => {
     const photosInput = req.files?.photos ?? req.files?.photo;
     const photos = normalizePhotos(photosInput);
 
-    if (
-      !name ||
-      !description ||
-      !price ||
-      !category ||
-      !quantity
-    ) {
+    if (!name || !description || !price || !category || !quantity) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required (name, description, price, category, quantity)",
+        message:
+          "All fields are required (name, description, price, category, quantity)",
       });
     }
     if (!photos.length) {
@@ -120,8 +123,8 @@ export const createProductController = async (req, res) => {
 
     const uploads = await Promise.all(
       photos.map((photo) =>
-        cloudinary.uploader.upload(photo.path, { folder: "ProductsImages" })
-      )
+        cloudinary.uploader.upload(photo.path, { folder: "ProductsImages" }),
+      ),
     );
     const urls = uploads.map((result) => result.secure_url);
     product.photoUrl = urls[0];
@@ -232,7 +235,7 @@ export const updateProductController = async (req, res) => {
     }
     const product = await productModel.findOneAndUpdate(
       { slug: req.params.slug },
-      { ...req.fields, slug: slugify(name) }
+      { ...req.fields, slug: slugify(name) },
     );
 
     if (photos.length) {
@@ -244,8 +247,8 @@ export const updateProductController = async (req, res) => {
       }
       const uploads = await Promise.all(
         photos.map((photo) =>
-          cloudinary.uploader.upload(photo.path, { folder: "ProductsImages" })
-        )
+          cloudinary.uploader.upload(photo.path, { folder: "ProductsImages" }),
+        ),
       );
       const urls = uploads.map((result) => result.secure_url);
       product.photoUrl = urls[0];
@@ -270,7 +273,6 @@ export const updateProductController = async (req, res) => {
       },
       ipAddress: req.ip,
     });
-    
   } catch (error) {
     console.log(error);
     return res.status(500).send({
@@ -318,11 +320,11 @@ export const getProductCountController = async (req, res) => {
       total,
     });
   } catch (error) {
-    console.log(error),
+    (console.log(error),
       res.status(500).send({
         message: "Error in Count product",
         error,
-      });
+      }));
   }
 };
 //get product perpage
@@ -432,7 +434,7 @@ export const toggleFeaturedProduct = async (req, res) => {
 };
 //search products suggestions controller
 export const searchProductsSuggestionsController = async (req, res) => {
-  try{
+  try {
     const { keyword } = req.params;
     const products = await productModel.find({
       $or: [
@@ -441,18 +443,18 @@ export const searchProductsSuggestionsController = async (req, res) => {
       ],
     });
     res.status(200).send({
-      sucess:true,
+      sucess: true,
       message: "Search products suggestions",
       products,
     });
-  }catch(error){
+  } catch (error) {
     console.log(error);
     res.status(400).send({
       message: "Error in search products suggestions",
       error,
     });
   }
-}
+};
 
 //payment gateway api
 //token
@@ -493,9 +495,177 @@ export const brainTreePaymentController = async () => {
         } else {
           res.status(500).send(error);
         }
-      }
+      },
     );
   } catch (error) {
     console.log(error);
+  }
+};
+
+/**
+ * =========================
+ * Razorpay (Sample) - Server APIs
+ * =========================
+ *
+ * Flow:
+ * 1) Client calls `razorpayCreateOrderController` with cart + totals.
+ * 2) Server computes amount (in paise), creates Razorpay order (sample here), and returns:
+ *    - orderId
+ *    - amount
+ *    - currency
+ *    - keyId (public)
+ * 3) Client opens Razorpay Checkout and receives:
+ *    - razorpay_payment_id
+ *    - razorpay_order_id
+ *    - razorpay_signature
+ * 4) Client sends these to `razorpayVerifyPaymentController`
+ * 5) Server verifies signature using `RAZORPAY_KEY_SECRET` and creates an Order in DB.
+ */
+
+// Create a Razorpay order (sample implementation)
+// IMPORTANT: Replace the "sample order creation" with official Razorpay SDK call when you add keys.
+export const razorpayCreateOrderController = async (req, res) => {
+  try {
+    const { cart, promoCode } = req.body || {};
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart is required",
+      });
+    }
+
+    // Server-side amount calculation (do not trust client totals)
+    const subtotal = cart.reduce((sum, i) => {
+      const qty = Number(i?.qty || 1);
+      const price = Number(i?.price || 0);
+      return sum + price * qty;
+    }, 0);
+
+    // Keep promo logic aligned with frontend sample (SAVE10)
+    const normalizedPromo = String(promoCode || "")
+      .trim()
+      .toUpperCase();
+    const discount = normalizedPromo === "SAVE10" ? subtotal * 0.1 : 0;
+
+    // Mirror the frontend logic (shipping/tax). You can later move this to a single shared config.
+    const shipping = subtotal >= 100 ? 0 : subtotal === 0 ? 0 : 9.99;
+    const tax = subtotal * 0.08;
+
+    const total = Math.max(0, subtotal + shipping + tax - discount);
+
+    // Razorpay expects amount in the smallest currency unit (INR paise)
+    // NOTE: Your frontend currently formats USD. You should switch currency display to INR when you go live.
+    const amountInPaise = Math.round(total * 100);
+
+    const keyId = process.env.RAZORPAY_KEY_ID || "RAZORPAY_KEY_ID_HERE";
+
+    // SAMPLE order response shape (replace with actual Razorpay order creation)
+    // Real Razorpay order creation typically returns: { id, amount, currency, receipt, status, ... }
+    const sampleOrder = {
+      id: `order_sample_${Date.now()}`,
+      amount: amountInPaise,
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+      status: "created",
+      notes: {
+        promoCode: normalizedPromo || undefined,
+      },
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Razorpay order created (sample)",
+      keyId,
+      order: sampleOrder,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error creating Razorpay order",
+      error: error?.message,
+    });
+  }
+};
+
+// Verify Razorpay signature and create DB order
+export const razorpayVerifyPaymentController = async (req, res) => {
+  try {
+    const {
+      cart,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      promoCode,
+    } = req.body || {};
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart is required",
+      });
+    }
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required Razorpay fields (razorpay_order_id, razorpay_payment_id, razorpay_signature)",
+      });
+    }
+
+    const keySecret =
+      process.env.RAZORPAY_KEY_SECRET || "RAZORPAY_KEY_SECRET_HERE";
+
+    // Verify signature: HMAC_SHA256(order_id + "|" + payment_id, key_secret)
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", keySecret)
+      .update(body)
+      .digest("hex");
+
+    const signatureIsValid =
+      String(expectedSignature) === String(razorpay_signature);
+
+    if (!signatureIsValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid payment signature",
+      });
+    }
+
+    // Create order record in DB
+    const payment = {
+      gateway: "razorpay",
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      promoCode:
+        String(promoCode || "")
+          .trim()
+          .toUpperCase() || undefined,
+      verified: true,
+      verifiedAt: new Date().toISOString(),
+    };
+
+    const order = await new orderModel({
+      products: cart,
+      payment,
+      buyer: req.user._id,
+    }).save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment verified and order created",
+      order,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error verifying Razorpay payment",
+      error: error?.message,
+    });
   }
 };

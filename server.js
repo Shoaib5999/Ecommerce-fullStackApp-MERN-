@@ -5,13 +5,14 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { existsSync } from "fs";
+import helmet from "helmet";
 
 import { connectDB } from "./config/db.js";
 
 import authRoute from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-
+import { limiter } from "./helpers/rateLimiter.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -21,6 +22,11 @@ import auditLogsDelete from "./cronjobs/auditLogsDelete.js";
 dotenv.config({ path: join(__dirname, ".env") });
 
 const app = express();
+app.use(helmet());
+
+// If you're behind a reverse proxy (Vercel/Render/Nginx/Cloudflare, etc),
+// enable trust proxy so express-rate-limit can read X-Forwarded-For correctly.
+app.set("trust proxy", 1);
 
 /**
  * In Vercel serverless, you must not call `app.listen`.
@@ -37,16 +43,33 @@ const ensureDbReady = async () => {
   return dbReadyPromise;
 };
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+  "http://localhost:8080",
+  "https://ecommerce-full-stack-app-mern-awdodvrap-shoaib5999s-projects.vercel.app",
+];
+
 // Middleware
+app.use(limiter);
+
 app.use(
   cors({
-    origin: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
 );
 app.use(express.json({ limit: "2mb" }));
 app.use(morgan("dev"));
-
 // Serve React build when present (Vercel will primarily serve static output,
 // but this keeps parity for other hosts too)
 const clientBuildPath = join(__dirname, "./client/build");
@@ -106,5 +129,13 @@ if (!process.env.VERCEL) {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
+
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 export default app;

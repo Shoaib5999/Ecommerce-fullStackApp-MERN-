@@ -3,35 +3,65 @@ import User from "../models/userModels.js";
 
 // Protected routes token base
 export const requireSignIn = async (req, res, next) => {
-  const JWT_token = req.headers["authorization"];
   try {
-    const decode = JWT.verify(JWT_token, process.env.JWT_SECRET);
-    console.log(decode);
+    const authHeader = req.headers["authorization"];
+
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization header is missing",
+      });
+    }
+
+    // Supports:
+    // - "Bearer <token>"
+    // - "<token>"
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length).trim()
+      : authHeader.trim();
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "JWT is missing",
+      });
+    }
+
+    const decode = JWT.verify(token, process.env.JWT_SECRET);
     req.user = decode;
-    next();
+    return next();
   } catch (error) {
-    console.log(error);
+    // TokenExpiredError, JsonWebTokenError, NotBeforeError
+    return res.status(401).json({
+      success: false,
+      message:
+        error?.name === "TokenExpiredError" ? "JWT expired" : "Invalid JWT",
+    });
   }
 };
 
 // Admin access
 export const isAdmin = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
-    if (user.role !== 1) {
+    if (!req.user?._id) {
       return res.status(401).send({
         success: false,
         message: "Unauthorized Access",
       });
-    } else {
-      next();
     }
+
+    const user = await User.findById(req.user._id);
+    if (!user || user.role !== 1) {
+      return res.status(401).send({
+        success: false,
+        message: "Unauthorized Access",
+      });
+    }
+    return next();
   } catch (error) {
-    res.status(404).send({
+    return res.status(500).send({
       success: false,
-      message: "Unauthorized person, not an admin",
-      error,
+      message: "Error while checking admin role",
     });
-    console.log(error);
   }
 };

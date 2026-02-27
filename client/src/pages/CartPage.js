@@ -3,7 +3,6 @@ import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
-import DropIn from "braintree-web-drop-in-react";
 import axios from "axios";
 import { useWishlist } from "../context/wishlist";
 import { addToWishlist } from "../utils/wishlistUtils";
@@ -14,8 +13,11 @@ const CartPage = () => {
   const [cart, setCart] = useCart();
   const [wishlist, setWishlist] = useWishlist();
   const Navigate = useNavigate();
-  const [clientToken, setClientToken] = useState("");
-  const [instance, setInstance] = useState("");
+
+  // Razorpay (sample) state
+  const [rzpReady, setRzpReady] = useState(false);
+  const [payLoading, setPayLoading] = useState(false);
+
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(null);
 
@@ -52,21 +54,127 @@ const CartPage = () => {
       currency: "USD",
     }).format(value);
 
-  //get payment gateway token
-  const getToken = async () => {
+  // Load Razorpay checkout script (safe to replace key later)
+  useEffect(() => {
+    const scriptId = "razorpay-checkout-js";
+
+    const existing = document.getElementById(scriptId);
+    if (existing) {
+      setRzpReady(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+
+    script.onload = () => setRzpReady(true);
+    script.onerror = () => setRzpReady(false);
+
+    document.body.appendChild(script);
+  }, []);
+
+  //handle payments (Razorpay sample)
+  const handlePayment = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/products/braintree/token`);
-      setClientToken(data?.clientToken);
+      if (!auth?.token) return;
+
+      if (!rzpReady || !window.Razorpay) {
+        console.log("Razorpay SDK not ready");
+        return;
+      }
+
+      setPayLoading(true);
+
+      // 1) Create order on server (server calculates amount)
+      const { data } = await axios.post(
+        "/api/v1/products/razorpay/create-order",
+        {
+          cart,
+          promoCode: promoApplied === "SAVE10" ? promoApplied : promoCode,
+        },
+        {
+          headers: {
+            Authorization: auth?.token,
+          },
+        },
+      );
+
+      if (!data?.success || !data?.order?.id) {
+        console.log("Failed to create Razorpay order", data);
+        setPayLoading(false);
+        return;
+      }
+
+      const { keyId, order } = data;
+
+      // 2) Open Razorpay Checkout
+      const options = {
+        key: keyId, // replace later via env on server; returned here for convenience
+        amount: order.amount, // in paise
+        currency: order.currency || "INR",
+        name: "Ecommerce App",
+        description: "Order payment",
+        order_id: order.id,
+        prefill: {
+          name: auth?.user?.name || "",
+          email: auth?.user?.email || "",
+          contact: auth?.user?.phone || "",
+        },
+        notes: {
+          promoCode: promoApplied === "SAVE10" ? "SAVE10" : undefined,
+        },
+        theme: {
+          color: "#0d6efd",
+        },
+        handler: async function (response) {
+          try {
+            // 3) Verify payment signature on server + create DB order
+            const verifyRes = await axios.post(
+              "/api/v1/products/razorpay/verify-payment",
+              {
+                cart,
+                promoCode: promoApplied === "SAVE10" ? promoApplied : promoCode,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              {
+                headers: {
+                  Authorization: auth?.token,
+                },
+              },
+            );
+
+            if (verifyRes?.data?.success) {
+              // Clear cart on success
+              setCart([]);
+              localStorage.removeItem("cart");
+              Navigate("/dashboard/user/orders");
+            } else {
+              console.log("Payment verification failed", verifyRes?.data);
+            }
+          } catch (err) {
+            console.log("Error verifying payment", err);
+          } finally {
+            setPayLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setPayLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
       console.log(error);
+      setPayLoading(false);
     }
   };
-  useEffect(() => {
-    getToken();
-  }, [auth?.token]);
-
-  //handle payments
-  const handlePayment = () => {};
 
   const handleApplyPromo = () => {
     const code = promoCode.trim().toUpperCase();
@@ -90,7 +198,6 @@ const CartPage = () => {
                 : "Your cart is empty."}
             </p>
           </div>
-         
         </div>
 
         {cart?.length === 0 ? (
@@ -172,10 +279,10 @@ const CartPage = () => {
             </div>
 
             <div className="col-12 col-lg-4">
-              <div  className="sticky-shopping">
-              <Link to="/" className="btn btn-secondary ">
-                Continue Shopping
-              </Link>
+              <div className="sticky-shopping">
+                <Link to="/" className="btn btn-secondary ">
+                  Continue Shopping
+                </Link>
               </div>
               <div className="surface p-4 sticky-summary">
                 <h2 className="mb-2">Order Summary</h2>
@@ -244,11 +351,23 @@ const CartPage = () => {
                         <p className="text-muted mb-2">
                           {(() => {
                             const list = auth.user.deliveryAddresses || [];
-                            const defaultOrFirst = list.find((a) => a.isDefault) || list[0];
+                            const defaultOrFirst =
+                              list.find((a) => a.isDefault) || list[0];
                             if (defaultOrFirst) {
-                              return [defaultOrFirst.street, defaultOrFirst.city, defaultOrFirst.state, defaultOrFirst.zip, defaultOrFirst.country].filter(Boolean).join(", ");
+                              return [
+                                defaultOrFirst.street,
+                                defaultOrFirst.city,
+                                defaultOrFirst.state,
+                                defaultOrFirst.zip,
+                                defaultOrFirst.country,
+                              ]
+                                .filter(Boolean)
+                                .join(", ");
                             }
-                            return auth.user.address || "Add an address in your profile";
+                            return (
+                              auth.user.address ||
+                              "Add an address in your profile"
+                            );
                           })()}
                         </p>
                         <button
@@ -260,36 +379,41 @@ const CartPage = () => {
                         </button>
                       </div>
                       <div className="mt-3">
-                        <DropIn
-                          options={{
-                            authorization: clientToken,
-                            paypal: {
-                              flow: "vault",
-                            },
-                          }}
-                          onInstance={(instance) => setInstance(instance)}
-                        />
-                        <button
-                          className="btn btn-primary w-100"
-                          onClick={handlePayment}
-                          disabled={
-                            !instance ||
-                            !(
-                              auth?.user?.address ||
-                              (auth?.user?.deliveryAddresses && auth.user.deliveryAddresses.length > 0)
-                            )
-                          }
-                        >
-                          Make Payment
-                        </button>
+                        <div className="p-3 border rounded bg-light">
+                          <h6 className="mb-2">Payment</h6>
+                          <p className="text-muted mb-2">
+                            Razorpay Checkout (sample). You will replace
+                            `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` in env
+                            later.
+                          </p>
+                          <button
+                            className="btn btn-primary w-100"
+                            onClick={handlePayment}
+                            disabled={
+                              payLoading ||
+                              !rzpReady ||
+                              !(
+                                auth?.user?.address ||
+                                (auth?.user?.deliveryAddresses &&
+                                  auth.user.deliveryAddresses.length > 0)
+                              )
+                            }
+                          >
+                            {payLoading ? "Processing..." : "Pay with Razorpay"}
+                          </button>
+                          {!rzpReady && (
+                            <p className="text-danger mt-2 mb-0">
+                              Razorpay SDK failed to load. Check your network
+                              and try again.
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </>
                   ) : (
                     <div className="surface p-3 text-center">
                       <h5>Please Login</h5>
-                      <p className="text-muted">
-                        Login to continue checkout.
-                      </p>
+                      <p className="text-muted">Login to continue checkout.</p>
                       <button
                         type="button"
                         className="btn btn-warning w-100"

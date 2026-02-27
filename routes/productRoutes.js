@@ -13,6 +13,8 @@ import {
   brainTreePaymentController,
   braintreeTokenController,
   toggleFeaturedProduct,
+  razorpayCreateOrderController,
+  razorpayVerifyPaymentController,
 } from "../controllers/productController.js";
 import formidableMiddleware from "express-formidable";
 
@@ -24,7 +26,7 @@ router.post(
   formidableMiddleware({ multiples: true }),
   requireSignIn,
   isAdmin,
-  createProductController
+  createProductController,
 );
 router.get("/get-products", getProductController);
 router.get("/get-product/:slug", getSingleProduct);
@@ -34,13 +36,13 @@ router.put(
   requireSignIn,
   isAdmin,
   formidableMiddleware({ multiples: true }),
-  updateProductController
+  updateProductController,
 );
 router.delete(
   "/delete-product/:slug",
   requireSignIn,
   isAdmin,
-  deleteProductController
+  deleteProductController,
 );
 
 //count product
@@ -57,4 +59,20 @@ router.get("/braintree/token", braintreeTokenController);
 
 //payments
 router.post("/braintree/payment", requireSignIn, brainTreePaymentController);
+
+//@Payment (Razorpay - sample; replace keys via env later)
+// Create order (server calculates amount, returns order + keyId)
+router.post(
+  "/razorpay/create-order",
+  // requireSignIn,
+  razorpayCreateOrderController,
+);
+
+// Verify signature + create DB order
+router.post(
+  "/razorpay/verify-payment",
+  requireSignIn,
+  razorpayVerifyPaymentController,
+);
+
 export default router;
