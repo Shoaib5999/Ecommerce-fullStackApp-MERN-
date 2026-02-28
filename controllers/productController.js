@@ -5,6 +5,7 @@ import orderModel from "../models/orderModel.js";
 import cloudinary from "../middlewares/cloudinary.js";
 import { logAction } from "../helpers/auditLogger.js";
 import crypto from "crypto";
+import Razorpay from "razorpay";
 
 //@Payment Gateway (Braintree - legacy/sample)
 var gateway = new braintree.BraintreeGateway({
@@ -14,11 +15,22 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: "sandbox_private_key_here",
 });
 
-//@Payment Gateway (Razorpay - sample; replace keys via env later)
-// NOTE: We intentionally do NOT instantiate the official SDK here to keep this sample lightweight.
-// Required env vars you will add later:
+//@Payment Gateway (Razorpay - live via env)
+// Required env vars:
 // - RAZORPAY_KEY_ID
 // - RAZORPAY_KEY_SECRET
+const getRazorpayClient = () => {
+  const key_id = process.env.RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!key_id || !key_secret) {
+    throw new Error(
+      "Razorpay keys missing. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in environment variables.",
+    );
+  }
+
+  return new Razorpay({ key_id, key_secret });
+};
 
 const normalizePhotos = (input) => {
   if (!input) return [];
@@ -522,8 +534,7 @@ export const brainTreePaymentController = async () => {
  * 5) Server verifies signature using `RAZORPAY_KEY_SECRET` and creates an Order in DB.
  */
 
-// Create a Razorpay order (sample implementation)
-// IMPORTANT: Replace the "sample order creation" with official Razorpay SDK call when you add keys.
+// Create a Razorpay order (REAL implementation using Razorpay SDK)
 export const razorpayCreateOrderController = async (req, res) => {
   try {
     const { cart, promoCode } = req.body || {};
@@ -548,36 +559,34 @@ export const razorpayCreateOrderController = async (req, res) => {
       .toUpperCase();
     const discount = normalizedPromo === "SAVE10" ? subtotal * 0.1 : 0;
 
-    // Mirror the frontend logic (shipping/tax). You can later move this to a single shared config.
+    // Mirror the frontend logic (shipping/tax)
     const shipping = subtotal >= 100 ? 0 : subtotal === 0 ? 0 : 9.99;
     const tax = subtotal * 0.08;
 
     const total = Math.max(0, subtotal + shipping + tax - discount);
 
-    // Razorpay expects amount in the smallest currency unit (INR paise)
-    // NOTE: Your frontend currently formats USD. You should switch currency display to INR when you go live.
+    // Razorpay expects amount in paise (smallest unit)
     const amountInPaise = Math.round(total * 100);
 
-    const keyId = process.env.RAZORPAY_KEY_ID || "RAZORPAY_KEY_ID_HERE";
+    // Create order via Razorpay SDK
+    const razorpay = getRazorpayClient();
+    const receipt = `rcpt_${Date.now()}`;
 
-    // SAMPLE order response shape (replace with actual Razorpay order creation)
-    // Real Razorpay order creation typically returns: { id, amount, currency, receipt, status, ... }
-    const sampleOrder = {
-      id: `order_sample_${Date.now()}`,
+    const order = await razorpay.orders.create({
       amount: amountInPaise,
       currency: "INR",
-      receipt: `rcpt_${Date.now()}`,
-      status: "created",
+      receipt,
       notes: {
         promoCode: normalizedPromo || undefined,
+        userId: String(req.user?._id || ""),
       },
-    };
+    });
 
     return res.status(200).json({
       success: true,
-      message: "Razorpay order created (sample)",
-      keyId,
-      order: sampleOrder,
+      message: "Razorpay order created",
+      keyId: process.env.RAZORPAY_KEY_ID,
+      order,
     });
   } catch (error) {
     console.log(error);

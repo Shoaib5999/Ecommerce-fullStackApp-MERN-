@@ -21,6 +21,16 @@ import auditLogsDelete from "./cronjobs/auditLogsDelete.js";
 // Load .env from project root (must run before any code that reads env)
 dotenv.config({ path: join(__dirname, ".env") });
 
+// Debug (safe): confirm Razorpay env vars are present without printing secrets
+console.log(
+  "[env] RAZORPAY_KEY_ID present:",
+  Boolean(process.env.RAZORPAY_KEY_ID),
+);
+console.log(
+  "[env] RAZORPAY_KEY_SECRET present:",
+  Boolean(process.env.RAZORPAY_KEY_SECRET),
+);
+
 const app = express();
 app.use(helmet());
 
